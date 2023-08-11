@@ -124,13 +124,16 @@ crop_cfg:
         - type: FilterMask
           area_thresholds: [80000000]
 
-    contour_filter_mode: first_index
     cropped_cfg:
       '46':
-        anchor_point: center
-        offset: [0, 0]
-        output_size: [14000, 20000]
+        - sort_mode: null
+          index: 0
+          anchor_point: center
+          offset: [0, 0]
+          output_size: [14000, 20000]
       '81':
-        anchor_point: center
-        offset: [0, 0]
-        output_size: [11900, 17000]
+        - sort_mode: null
+          index: 0
+          anchor_point: center
+          offset: [0, 0]
+          output_size: [11900, 17000]

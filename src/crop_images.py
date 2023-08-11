@@ -6,42 +6,9 @@ import yaml
 import argparse
 import numpy as np
 
-from xrack_locate import SMoreDnnModule, DnnRequest
+from xrack_locate import SMoreDnnModule, DnnRequest, draw
 from smore_xrack.utils.logger import get_root_logger
 from smore_xrack.utils.timer import print_profile
-
-
-# def get_product_locations(dnn_module, base_dir, img_dir, save_dir, product_type_func, grayscale=True, enable_time_printing=True):
-#     print('img_dir:', img_dir)
-#     log_path = os.path.join(save_dir, 'log.txt')
-#     logger = get_root_logger(log_path)
-#     for root, dirnames, filenames in os.walk(os.path.join(base_dir, img_dir)):
-#         for filename in filenames:
-#             if '.jpg' not in filename and '.bmp' not in filename:
-#                 continue
-#             img_path = os.path.join(root, filename)
-#             if grayscale:
-#                 img_data = cv2.imread(img_path, 0)
-#             else:
-#                 img_data = cv2.imread(img_path)
-
-#             product_type = product_type_func(img_path)
-
-#             req = DnnRequest([img_data], json.dumps({"product_type": product_type, "is_draw": True}))
-#             try:
-#                 rsp = dnn_module.RunImpl(req)
-#             except:
-#                 print('error path:', img_path)
-#                 raise
-#             if enable_time_printing:
-#                 profile_info = print_profile()
-#                 logger.info(profile_info)
-
-#             save_path = img_path.replace(base_dir, save_dir)
-#             os.makedirs(os.path.dirname(save_path), exist_ok=True)
-#             cv2.imwrite(save_path, rsp.outputs[0])
-
-#     dnn_module.Finalize()
 
 
 def add_str_to_filename(filename, s):
@@ -150,6 +117,7 @@ def crop_images_by_config(config_path, grayscale=False, is_draw=False, enable_ti
         roi_collection = mapping['roi_collection']
         rsp_image = None
         if roi_collection is None:
+            # 未指定roi_collection，使用模型获取roi_collection
             req = DnnRequest([img_data], json.dumps({"product_type": product_type, "is_draw": is_draw}))
             try:
                 rsp = dnn_module.RunImpl(req)
@@ -162,7 +130,18 @@ def crop_images_by_config(config_path, grayscale=False, is_draw=False, enable_ti
             if is_draw:
                 rsp_image = rsp.outputs[0]
             outputs = json.loads(rsp.output_config)
-            roi_collection = [outputs['crop_roi']]
+            roi_collection = outputs['crop_roi_collection']
+        else:
+            # 指定了roi_collection
+            if is_draw:
+                rsp_image = draw(
+                    img=img_data,
+                    outputs={
+                        'crop_roi_collection': roi_collection,
+                        'edge_contours': [],
+                        'edge_boxes': []
+                    }
+                )
         return roi_collection, rsp_image
 
 
@@ -184,14 +163,3 @@ if __name__ == '__main__':
 
     crop_images_by_config(args.config_path, grayscale=args.grayscale, is_draw=args.is_draw,
                           enable_time_printing=args.enable_time_printing)
-    # dnn_module = SMoreDnnModule()
-    # dnn_module.Init(
-    #     'DataKit/configs/anjie.yaml'
-    # )
-    # base_dir = './Kersen_DATASETS/origin'
-    # img_dirs = [
-    #     '20230724',
-    # ]
-    # save_dir = 'DataKit/locate_results/temp'
-    # for img_dir in img_dirs:
-    #     get_product_locations(dnn_module, base_dir, img_dir, save_dir)

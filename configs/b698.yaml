@@ -39,24 +39,28 @@ crop_cfg:
   product_type_mapping:
     - tags: ['0630-小光源', '2工位']
       product_type: '2工位'
-      # roi_collection: null
-      roi_collection:
-        - [1500, 660, 2700, 2160]
+      roi_collection: null
+      # roi_collection:
+      #   - [1500, 660, 2700, 2160]
+      #   - [500, 660, 1700, 2160]
     - tags: ['_else_', '2工位']
       product_type: '2工位'
-      # roi_collection: null
-      roi_collection:
-        - [2450, 500, 3650, 2000]
+      roi_collection: null
+      # roi_collection:
+      #   - [2450, 500, 3650, 2000]
+      #   - [1450, 500, 1650, 2000]
     - tags: ['0630-小光源', '3工位']
       product_type: '3工位'
-      # roi_collection: null
-      roi_collection:
-        - [1600, 1150, 3600, 1850]
+      roi_collection: null
+      # roi_collection:
+      #   - [1600, 1150, 3600, 1850]
+      #   - [600, 1150, 2600, 1850]
     - tags: ['_else_', '3工位']
       product_type: '3工位'
-      # roi_collection: null
-      roi_collection:
-        - [1900, 850, 3900, 1550]
+      roi_collection: null
+      # roi_collection:
+      #   - [1900, 850, 3900, 1550]
+      #   - [900, 850, 2900, 1550]
 
 
   locate_pipeline_cfg:
@@ -87,13 +91,26 @@ crop_cfg:
         - type: FilterMask
           area_thresholds: [500]
 
-    contour_filter_mode: rightmost
     cropped_cfg:
       '2工位':
-        anchor_point: right
-        offset: [-500, -200]
-        output_size: [1400, 1600]
+        - sort_mode: rightmost
+          index: 0
+          anchor_point: right
+          offset: [-500, -200]
+          output_size: [1400, 1600]
+        - sort_mode: rightmost
+          index: 0
+          anchor_point: right
+          offset: [-1500, -1200]
+          output_size: [1400, 1600]
       '3工位':
-        anchor_point: right
-        offset: [-900, 0]
-        output_size: [2000, 800]
+        - sort_mode: rightmost
+          index: 0
+          anchor_point: right
+          offset: [-900, 0]
+          output_size: [2000, 800]
+        - sort_mode: rightmost
+          index: 0
+          anchor_point: right
+          offset: [-1900, -1000]
+          output_size: [2000, 800]

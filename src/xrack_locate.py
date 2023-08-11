@@ -21,7 +21,6 @@ class LocatePipeline(PipelineBase):
     def __init__(self, 
                  loc_module_cfg: dict,
                  cropped_cfg: dict,
-                 contour_filter_mode: str,
                  **kwargs):
         super().__init__()
 
@@ -30,7 +29,6 @@ class LocatePipeline(PipelineBase):
         self._preloc_module = None
         # 裁剪相关的配置
         self.cropped_cfg = cropped_cfg
-        self.contour_filter_mode = contour_filter_mode
 
     @property
     def preloc_module(self):
@@ -38,93 +36,101 @@ class LocatePipeline(PipelineBase):
             self._preloc_module = build_module(self.preloc_module_cfg)
         return self._preloc_module
 
-    def edges_loc_forward(self, img_tensor):
-        preloc_module_output = self.preloc_module.forward([img_tensor])[0]
+    @staticmethod
+    def get_roi_data(img_tensor, preloc_module_output, sort_mode, index):
         try:
             d_rects = preloc_module_output[SegOutputConstants.CONTOURS_RECT][0]
             contours = preloc_module_output[SegOutputConstants.CONTOURS][0]
             areas = preloc_module_output[SegOutputConstants.CONTOURS_AREA][0]
-            assert self.contour_filter_mode in ['first_index', 'rightmost'], \
-                'contour_filter_mode only support ["first_index", "rightmost"], but got {}'.format(self.contour_filter_mode)
-            if self.contour_filter_mode == 'first_index':
-                index = 0
-            elif self.contour_filter_mode == 'rightmost':
-                index, max_x = 0, 0
-                for i, d_rect in enumerate(d_rects):
-                    (r_x, r_y), (r_w, r_h), angle = d_rect
-                    if r_x + r_w > max_x:
-                        max_x = r_x + r_w
-                        index = i
-            d_rect = d_rects[index]
-            contour = contours[index]
-            area = areas[index]
+            if sort_mode is None:
+                sorted_d_rects, sorted_contours, sorted_areas = d_rects, contours, areas
+            elif sort_mode == 'rightmost':
+                def get_right_x(d_rect):
+                    # d_rect: (r_x, r_y), (r_w, r_h), angle
+                    return d_rect[0][0] + d_rect[1][0]
 
+                # 打包并按照d_rect的最右边位置降序排序
+                packed_data = zip(d_rects, contours, areas)
+                sorted_data = sorted(packed_data, key=lambda x: get_right_x(x[0]), reverse=True)
+                # 解压排序后的数据
+                sorted_d_rects, sorted_contours, sorted_areas = zip(*sorted_data)
             # contour.shape: (n, 1, 2)
-            w_start, h_start = np.min(contour, axis=(0, 1))
-            w_end, h_end = np.max(contour, axis=(0, 1))
-            return [w_start, h_start, w_end, h_end], contour, d_rect, area
+            w_start, h_start = np.min(sorted_contours[index], axis=(0, 1))
+            w_end, h_end = np.max(sorted_contours[index], axis=(0, 1))
+            return (w_start, h_start, w_end, h_end), sorted_d_rects[index], sorted_contours[index], sorted_areas[index]
 
         except Exception as e:
             print(e)
             return [0, 0, img_tensor.shape[1], img_tensor.shape[0]], None, None, None
-    
-    def crop_to_cropped_size(self, img_data, edges, edge_contour, product_type):
-        w_start, h_start, w_end, h_end = edges
-        print('w, h:', w_end - w_start, h_end - h_start, flush=True)
 
+    def crop_to_cropped_size(self, img_tensor, preloc_module_output, product_type):
         cropped_cfg = self.cropped_cfg[product_type]
-        assert cropped_cfg['anchor_point'] in ['center', 'right'], \
-                'contour_filter_mode only support ["center", "right"], but got {}'.format(self.contour_filter_mode)
-        offset = cropped_cfg['offset']
+        crop_roi_collection, edge_contours, edge_boxes = [], [], []
+        for single_cfg in cropped_cfg:
+            sort_mode = single_cfg['sort_mode']
+            assert sort_mode is None or sort_mode in ['rightmost'], \
+                'sort_mode only support [None, "rightmost"], but got {}'.format(sort_mode)
+            index = single_cfg['index']
+            roi, edge_rect, edge_contour, edge_area = self.get_roi_data(img_tensor, preloc_module_output, sort_mode, index)
+            w_start, h_start, w_end, h_end = roi
+            print('w, h:', w_end - w_start, h_end - h_start, flush=True)
+            anchor_point = single_cfg['anchor_point']
+            assert anchor_point in ['center', 'right'], \
+                    'anchor_point only support ["center", "right"], but got {}'.format(anchor_point)
+            offset = single_cfg['offset']
 
-        if cropped_cfg['anchor_point'] == 'center':
-            w_center, h_center = (w_start + w_end) // 2 + offset[0], (h_start + h_end) // 2 + offset[1]
-        elif cropped_cfg['anchor_point'] == 'right':
-            index = int(np.argmax(edge_contour[:, :, 0], axis=0))
-            right_point = edge_contour[index][0]
-            w_center, h_center = right_point[0] + offset[0], right_point[1] + offset[1]
+            if anchor_point == 'center':
+                w_center, h_center = (w_start + w_end) // 2 + offset[0], (h_start + h_end) // 2 + offset[1]
+            elif anchor_point == 'right':
+                index = int(np.argmax(edge_contour[:, :, 0], axis=0))
+                right_point = edge_contour[index][0]
+                w_center, h_center = right_point[0] + offset[0], right_point[1] + offset[1]
 
-        crop_w, crop_h = cropped_cfg['output_size']
-        x1 = min(img_data.shape[1] - crop_w, max(0, w_center - crop_w // 2))
-        y1 = min(img_data.shape[0] - crop_h, max(0, h_center - crop_h // 2))
-        x2 = x1 + crop_w
-        y2 = y1 + crop_h
-        print('new w, h:', x2 - x1, y2 - y1, flush=True)
-        return (x1, y1, x2, y2)
+            crop_w, crop_h = single_cfg['output_size']
+            x1 = min(img_tensor.size(1) - crop_w, max(0, w_center - crop_w // 2))
+            y1 = min(img_tensor.size(0) - crop_h, max(0, h_center - crop_h // 2))
+            x2 = x1 + crop_w
+            y2 = y1 + crop_h
+            print('new w, h:', x2 - x1, y2 - y1, flush=True)
+            crop_roi_collection.append((x1, y1, x2, y2))
+            edge_contours.append(edge_contour)
+            edge_boxes.append(np.int0(cv2.boxPoints(edge_rect)).tolist())
+        output_dict = {
+            'crop_roi_collection': crop_roi_collection,
+            'edge_contours': edge_contours,
+            'edge_boxes': edge_boxes
+        }
+        return output_dict
 
     @profile("LocatePipeline", use_gpu=True)
     def forward(self, img_data: np.ndarray, **kwargs):
         if len(img_data.shape) == 2:
             img_data = np.expand_dims(img_data, -1)
         img_tensor = torch.from_numpy(img_data).cuda(non_blocking=False)
+        preloc_module_output = self.preloc_module.forward([img_tensor])[0]
 
-        edges, edge_contour, edge_rect, edge_area = self.edges_loc_forward(img_tensor)
-        edge_box = cv2.boxPoints(edge_rect)
-        edge_box = np.int0(edge_box).tolist()
-
-        crop_roi = self.crop_to_cropped_size(img_data, edges, edge_contour, kwargs.get('product_type'))
-        output_dict = {
-            'crop_roi': crop_roi,
-            'edge_contour': edge_contour,
-            'edge_box': edge_box
-        }
+        output_dict = self.crop_to_cropped_size(img_tensor, preloc_module_output, kwargs.get('product_type'))
         return output_dict
 
 
 def draw(img: np.ndarray, outputs: dict):
-    x1, y1, x2, y2 = outputs['crop_roi']
-    edge_contour = outputs['edge_contour']
-    edge_box = outputs['edge_box']
-    crop_contour = np.array([
-        [x1, y1], [x2, y1], [x2, y2], [x1, y2],
-    ], dtype=np.int32)
-    cv2.drawContours(img, [crop_contour], -1, color=[0, 0, 255], thickness=5)
-    cv2.putText(img, 'crop_contour', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 2,
+    crop_roi_collection = outputs['crop_roi_collection']
+    edge_contours = outputs['edge_contours']
+    edge_boxes = outputs['edge_boxes']
+    for i, crop_roi in enumerate(crop_roi_collection):
+        x1, y1, x2, y2 = crop_roi
+        crop_contour = np.array([
+            [x1, y1], [x2, y1], [x2, y2], [x1, y2],
+        ], dtype=np.int32)
+        cv2.drawContours(img, [crop_contour], -1, color=[0, 0, 255], thickness=5)
+        cv2.putText(img, 'crop_contour', (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 2,
                     color=[0, 0, 255], thickness=5, lineType=cv2.LINE_AA)
-    cv2.drawContours(img, [np.array(edge_contour)], -1, color=[0, 255, 0], thickness=2)
-    cv2.drawContours(img, [np.array(edge_box)], -1, color=[0, 255, 0], thickness=2)
-    cv2.putText(img, 'edge_box', edge_box[0], cv2.FONT_HERSHEY_SIMPLEX, 2,
-                    color=[0, 255, 0], thickness=2, lineType=cv2.LINE_AA)
+        if len(edge_contours) > 0:
+            cv2.drawContours(img, [np.array(edge_contours[i])], -1, color=[0, 255, 0], thickness=2)
+        if len(edge_boxes) > 0:
+            cv2.drawContours(img, [np.array(edge_boxes[i])], -1, color=[0, 255, 0], thickness=2)
+            cv2.putText(img, 'edge_box', edge_boxes[i][0], cv2.FONT_HERSHEY_SIMPLEX, 2,
+                        color=[0, 255, 0], thickness=2, lineType=cv2.LINE_AA)
     return img
 
 

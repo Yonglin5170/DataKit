@@ -1,0 +1,99 @@
+datalist_cfg:
+  # # b698 locate
+  # - base_dir: DATASETS/origin
+  #   img_json_dirs:
+  #     - ['20230630-0706', 'guangban_20230630-0710-json/20230630-0706']
+  #     - ['20230710', 'guangban_20230630-0710-json/20230710']
+  #   train_ratio: 0.8
+  #   generate_cfg:
+  #     - tags: ['.bmp']
+  #       save_dir: DATASETS/datalist_temp/locate
+  #       trainlist_name: trainlist_20230630-0710.txt
+  #       testlist_name: testlist_20230630-0710.txt
+
+  # b698 2工位 and 3工位
+  - base_dir: DATASETS/cropped2
+    img_json_dirs:
+      - ['20230630-0706', null]
+      - ['20230710', null]
+    train_ratio: 0.8
+    generate_cfg:
+      - tags: ['2工位']
+        save_dir: DATASETS/datalist/2工位
+        trainlist_name: trainlist_20230630-0710v2.txt
+        testlist_name: testlist_20230630-0710v2.txt
+        unknownlist_name: unknownlist_20230630-0710v2.txt
+      - tags: ['3工位']
+        save_dir: DATASETS/datalist/3工位
+        trainlist_name: trainlist_20230630-0710v2.txt
+        testlist_name: testlist_20230630-0710v2.txt
+        unknownlist_name: unknownlist_20230630-0710v2.txt
+
+crop_cfg:
+  base_dir: DATASETS/origin
+  img_json_dirs:
+    - ['20230630-0706', null]
+    - ['20230710', null]
+  save_dir: DATASETS/cropped2_temp
+  save_as_jpg: False
+  product_type_mapping:
+    - tags: ['0630-小光源', '2工位']
+      product_type: '2工位'
+      # roi_collection: null
+      roi_collection:
+        - [1500, 660, 2700, 2160]
+    - tags: ['_else_', '2工位']
+      product_type: '2工位'
+      # roi_collection: null
+      roi_collection:
+        - [2450, 500, 3650, 2000]
+    - tags: ['0630-小光源', '3工位']
+      product_type: '3工位'
+      # roi_collection: null
+      roi_collection:
+        - [1600, 1150, 3600, 1850]
+    - tags: ['_else_', '3工位']
+      product_type: '3工位'
+      # roi_collection: null
+      roi_collection:
+        - [1900, 850, 3900, 1550]
+
+
+  locate_pipeline_cfg:
+    type: LocatePipeline
+    loc_module_cfg:
+      type: SegModuleBase
+      label_map: ['guangban']
+      preprocess_cfg:
+        - type: CvtColor
+          mode: COLOR_BGR2RGB
+        - type: Resize
+          output_size: [1024, 540]
+        - type: Normalize
+          mean: [0.485, 0.456, 0.406]
+          std: [0.229, 0.224, 0.225]
+          scale: [1.0, 1.0, 1.0]
+      engine_cfg:
+        type: Onnx2TensorRTEngine
+        model_path: EXPERIMENTS/locate_v0_baseline/deploy/5000.onnx
+        md5: 8ad98d9065af366ffcea6399ca7382c8
+      output_cfg:
+        output_contours: true
+        output_mask: true
+        output_contours_area: true
+        output_score_map: false
+        output_rects: true
+      postprocess_cfg: 
+        - type: FilterMask
+          area_thresholds: [500]
+
+    contour_filter_mode: rightmost
+    cropped_cfg:
+      '2工位':
+        anchor_point: right
+        offset: [-500, -200]
+        output_size: [1400, 1600]
+      '3工位':
+        anchor_point: right
+        offset: [-900, 0]
+        output_size: [2000, 800]

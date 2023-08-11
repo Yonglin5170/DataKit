@@ -1,0 +1,136 @@
+datalist_cfg:
+  # anjie mingchang and anchang
+  - base_dir: DATASETS/cropped
+    img_json_dirs:
+      # - ['20230320-0619/20230320-46', '20230320-0619_jsonv2/20230320-46']
+      # - ['20230320-0619/20230328-81', '20230320-0619_jsonv2/20230328-81']
+      # - ['20230320-0619/20230329-81', '20230320-0619_jsonv2/20230329-81']
+      # - ['20230625-0629', '20230625-0629_jsonv1']
+      # - ['20230703/46石墨_修改v2', null]
+      # - ['20230703/0701-81-石墨超区域图_新标注', '20230703/0701-81-石墨超区域图_新标注_修改v2_json']
+      # - ['20230705', null]
+      - ['20230728', null]
+      - ['20230803', null]
+      - ['20230805', null]
+    train_ratio: 0.8
+    generate_cfg:
+      - tags: ['light', '_1.', '_ 10.']
+        save_dir: DATASETS/datalist/mingchang
+        trainlist_name: trainlist_20230728-0805.txt
+        testlist_name: testlist_20230728-0805.txt
+      - tags: ['dusky', '_2.', '_ 11.']
+        save_dir: DATASETS/datalist/anchang
+        trainlist_name: trainlist_20230728-0805.txt
+        testlist_name: testlist_20230728-0805.txt
+
+  # # kersen locate
+  # - base_dir: Kersen_DATASETS/origin
+  #   img_json_dirs:
+  #     - ['20230720', 'bianyuan_20230720-0729_json/20230720']
+  #     - ['20230724', 'bianyuan_20230720-0729_json/20230724']
+  #     - ['20230725', 'bianyuan_20230720-0729_json/20230725']
+  #     - ['20230729', 'bianyuan_20230720-0729_json/20230729']
+  #   train_ratio: 0.8
+  #   generate_cfg:
+  #     - tags: ['light', '_1.', '_ 10.', 'dusky', '_2.', '_ 11.']
+  #       save_dir: Kersen_DATASETS/datalist_temp/locate
+  #       trainlist_name: trainlist_20230720-0729.txt
+  #       testlist_name: testlist_20230720-0729.txt
+
+  # # kersen mingchang and anchang
+  # - base_dir: Kersen_DATASETS/cropped
+  #   img_json_dirs:
+  #     - ['20230729', null]
+  #     - ['20230802', null]
+  #     - ['20230804', null]
+  #   train_ratio: 0.8
+  #   generate_cfg:
+  #     - tags: ['light', '_1.', '_ 10.']
+  #       save_dir: Kersen_DATASETS/datalist_temp/mingchang
+  #       trainlist_name: trainlist_20230729-0804.txt
+  #       testlist_name: testlist_20230729-0804.txt
+  #     - tags: ['dusky', '_2.', '_ 11.']
+  #       save_dir: Kersen_DATASETS/datalist_temp/anchang
+  #       trainlist_name: trainlist_20230729-0804.txt
+  #       testlist_name: testlist_20230729-0804.txt
+
+crop_cfg:
+  base_dir: DATASETS/origin
+  img_json_dirs:
+    - ['20230728', null]
+    - ['20230803', null]
+    - ['20230805', null]
+  save_dir: DATASETS/cropped/temp
+  save_as_jpg: False
+  product_type_mapping:
+    # - tags: ['20230320-46']
+    #   product_type: '46'
+    #   roi_collection: null
+    # - tags: ['20230328-81']
+    #   product_type: '81'
+    #   roi_collection: null
+    # - tags: ['20230329-81']
+    #   product_type: '81'
+    #   roi_collection: null
+    # - tags: ['_else_']
+    #   product_type: '81'
+    #   roi_collection: null
+    - tags: ['_46_']
+      product_type: '46'
+      roi_collection: null
+    - tags: ['_81_']
+      product_type: '81'
+      roi_collection: null
+
+  # base_dir: Kersen_DATASETS/origin
+  # img_json_dirs:
+  #   - ['20230729', null]
+  #   - ['20230802', null]
+  #   - ['20230804', null]
+  # save_dir: Kersen_DATASETS/cropped/temp
+  # save_as_jpg: False
+  # product_type_mapping:
+  #   - tags: ['_46_']
+  #     product_type: '46'
+  #     roi_collection: null
+  #   - tags: ['_81_']
+  #     product_type: '81'
+  #     roi_collection: null
+
+
+  locate_pipeline_cfg:
+    type: LocatePipeline
+    loc_module_cfg:
+      type: SegModuleBase
+      label_map: ['bianyuan']
+      preprocess_cfg: 
+        - type: Resize
+          output_size: [512, 768]
+        - type: Normalize
+          mean: [0.5]
+          std: [1.0]
+          scale: [1.0]
+      engine_cfg:
+        type: Onnx2TensorRTEngine
+        model_path: CodeDeploy/pipeline_data/models/locate_0806_v1.onnx
+        md5: a2d2caf4fb5778eb2580c4ab7571828b
+      output_cfg:
+        output_contours: true
+        output_mask: true
+        output_contours_area: true
+        output_score_map: false
+        output_rects: true
+      postprocess_cfg: 
+        - type: FilterMask
+          area_thresholds: [80000000]
+
+    contour_filter_mode: first_index
+    cropped_cfg:
+      '46':
+        anchor_point: center
+        offset: [0, 0]
+        output_size: [14000, 20000]
+      '81':
+        anchor_point: center
+        offset: [0, 0]
+        output_size: [11900, 17000]

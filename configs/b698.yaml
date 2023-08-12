@@ -1,33 +1,42 @@
-datalist_cfg:
-  # # b698 locate
-  # - base_dir: DATASETS/origin
-  #   img_json_dirs:
-  #     - ['20230630-0706', 'guangban_20230630-0710-json/20230630-0706']
-  #     - ['20230710', 'guangban_20230630-0710-json/20230710']
-  #   train_ratio: 0.8
-  #   generate_cfg:
-  #     - tags: ['.bmp']
-  #       save_dir: DATASETS/datalist_temp/locate
-  #       trainlist_name: trainlist_20230630-0710.txt
-  #       testlist_name: testlist_20230630-0710.txt
+data_generator_cfg:
+  processing_queue: [locate, seg]
+  set_all_labels_ok: False
+  seed: 42
+  delimiter: '||'
+  tasks:
+    - task_name: locate
+      base_dir: DATASETS/origin
+      img_json_dirs:
+        - ['20230630-0706', 'guangban_20230630-0710-json/20230630-0706']
+        - ['20230710', 'guangban_20230630-0710-json/20230710']
+      train_ratio: 0.8
+      generate_cfgs:
+        - tags: ['.bmp']
+          save_dir: DATASETS/datalist_temp/locate
+          datalist_names:
+            train: trainlist_20230630-0710.txt
+            test: testlist_20230630-0710.txt
+            unknown: null
 
-  # b698 2工位 and 3工位
-  - base_dir: DATASETS/cropped2
-    img_json_dirs:
-      - ['20230630-0706', null]
-      - ['20230710', null]
-    train_ratio: 0.8
-    generate_cfg:
-      - tags: ['2工位']
-        save_dir: DATASETS/datalist/2工位
-        trainlist_name: trainlist_20230630-0710v2.txt
-        testlist_name: testlist_20230630-0710v2.txt
-        unknownlist_name: unknownlist_20230630-0710v2.txt
-      - tags: ['3工位']
-        save_dir: DATASETS/datalist/3工位
-        trainlist_name: trainlist_20230630-0710v2.txt
-        testlist_name: testlist_20230630-0710v2.txt
-        unknownlist_name: unknownlist_20230630-0710v2.txt
+    - task_name: seg
+      base_dir: DATASETS/cropped2
+      img_json_dirs:
+        - ['20230630-0706', null]
+        - ['20230710', null]
+      train_ratio: 0.8
+      generate_cfgs:
+        - tags: ['2工位']
+          save_dir: DATASETS/datalist_temp/2工位
+          datalist_names:
+            train: trainlist_20230630-0710v2.txt
+            test: testlist_20230630-0710v2.txt
+            unknown: unknownlist_20230630-0710v2.txt
+        - tags: ['3工位']
+          save_dir: DATASETS/datalist_temp/3工位
+          datalist_names:
+            train: trainlist_20230630-0710v2.txt
+            test: testlist_20230630-0710v2.txt
+            unknown: unknownlist_20230630-0710v2.txt
 
 image_cropper_cfg:
   base_dir: DATASETS/origin

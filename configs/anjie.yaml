@@ -1,58 +1,73 @@
-datalist_cfg:
-  # anjie mingchang and anchang
-  - base_dir: DATASETS/cropped
-    img_json_dirs:
-      # - ['20230320-0619/20230320-46', '20230320-0619_jsonv2/20230320-46']
-      # - ['20230320-0619/20230328-81', '20230320-0619_jsonv2/20230328-81']
-      # - ['20230320-0619/20230329-81', '20230320-0619_jsonv2/20230329-81']
-      # - ['20230625-0629', '20230625-0629_jsonv1']
-      # - ['20230703/46石墨_修改v2', null]
-      # - ['20230703/0701-81-石墨超区域图_新标注', '20230703/0701-81-石墨超区域图_新标注_修改v2_json']
-      # - ['20230705', null]
-      - ['20230728', null]
-      - ['20230803', null]
-      - ['20230805', null]
-    train_ratio: 0.8
-    generate_cfg:
-      - tags: ['light', '_1.', '_ 10.']
-        save_dir: DATASETS/datalist/mingchang
-        trainlist_name: trainlist_20230728-0805.txt
-        testlist_name: testlist_20230728-0805.txt
-      - tags: ['dusky', '_2.', '_ 11.']
-        save_dir: DATASETS/datalist/anchang
-        trainlist_name: trainlist_20230728-0805.txt
-        testlist_name: testlist_20230728-0805.txt
+data_generator_cfg:
+  processing_queue: [anjie_seg, kersen_locate, kersen_seg]
+  set_all_labels_ok: False
+  seed: 42
+  delimiter: '||'
+  tasks:
+    - task_name: anjie_seg
+      base_dir: DATASETS/cropped
+      img_json_dirs:
+        # - ['20230320-0619/20230320-46', '20230320-0619_jsonv2/20230320-46']
+        # - ['20230320-0619/20230328-81', '20230320-0619_jsonv2/20230328-81']
+        # - ['20230320-0619/20230329-81', '20230320-0619_jsonv2/20230329-81']
+        # - ['20230625-0629', '20230625-0629_jsonv1']
+        # - ['20230703/46石墨_修改v2', null]
+        # - ['20230703/0701-81-石墨超区域图_新标注', '20230703/0701-81-石墨超区域图_新标注_修改v2_json']
+        # - ['20230705', null]
+        - ['20230728', null]
+        - ['20230803', null]
+        - ['20230805', null]
+      train_ratio: 0.8
+      generate_cfgs:
+        - tags: ['light', '_1.', '_ 10.']
+          save_dir: DATASETS/datalist_temp/mingchang
+          datalist_names:
+            train: trainlist_20230728-0805.txt
+            test: testlist_20230728-0805.txt
+            unknown: null
+        - tags: ['dusky', '_2.', '_ 11.']
+          save_dir: DATASETS/datalist_temp/anchang
+          datalist_names:
+            train: trainlist_20230728-0805.txt
+            test: testlist_20230728-0805.txt
+            unknown: null
 
-  # # kersen locate
-  # - base_dir: Kersen_DATASETS/origin
-  #   img_json_dirs:
-  #     - ['20230720', 'bianyuan_20230720-0729_json/20230720']
-  #     - ['20230724', 'bianyuan_20230720-0729_json/20230724']
-  #     - ['20230725', 'bianyuan_20230720-0729_json/20230725']
-  #     - ['20230729', 'bianyuan_20230720-0729_json/20230729']
-  #   train_ratio: 0.8
-  #   generate_cfg:
-  #     - tags: ['light', '_1.', '_ 10.', 'dusky', '_2.', '_ 11.']
-  #       save_dir: Kersen_DATASETS/datalist_temp/locate
-  #       trainlist_name: trainlist_20230720-0729.txt
-  #       testlist_name: testlist_20230720-0729.txt
+    - task_name: kersen_locate
+      base_dir: Kersen_DATASETS/origin
+      img_json_dirs:
+        - ['20230720', 'bianyuan_20230720-0729_json/20230720']
+        - ['20230724', 'bianyuan_20230720-0729_json/20230724']
+        - ['20230725', 'bianyuan_20230720-0729_json/20230725']
+        - ['20230729', 'bianyuan_20230720-0729_json/20230729']
+      train_ratio: 0.8
+      generate_cfgs:
+        - tags: ['.jpg']
+          save_dir: Kersen_DATASETS/datalist_temp/locate
+          datalist_names:
+            train: trainlist_20230720-0729.txt
+            test: testlist_20230720-0729.txt
+            unknown: null
 
-  # # kersen mingchang and anchang
-  # - base_dir: Kersen_DATASETS/cropped
-  #   img_json_dirs:
-  #     - ['20230729', null]
-  #     - ['20230802', null]
-  #     - ['20230804', null]
-  #   train_ratio: 0.8
-  #   generate_cfg:
-  #     - tags: ['light', '_1.', '_ 10.']
-  #       save_dir: Kersen_DATASETS/datalist_temp/mingchang
-  #       trainlist_name: trainlist_20230729-0804.txt
-  #       testlist_name: testlist_20230729-0804.txt
-  #     - tags: ['dusky', '_2.', '_ 11.']
-  #       save_dir: Kersen_DATASETS/datalist_temp/anchang
-  #       trainlist_name: trainlist_20230729-0804.txt
-  #       testlist_name: testlist_20230729-0804.txt
+    - task_name: kersen_seg
+      base_dir: Kersen_DATASETS/cropped
+      img_json_dirs:
+        - ['20230729', null]
+        - ['20230802', null]
+        - ['20230804', null]
+      train_ratio: 0.8
+      generate_cfgs:
+        - tags: ['light', '_1.', '_ 10.']
+          save_dir: Kersen_DATASETS/datalist_temp/mingchang
+          datalist_names:
+            train: trainlist_20230729-0804.txt
+            test: testlist_20230729-0804.txt
+            unknown: null
+        - tags: ['dusky', '_2.', '_ 11.']
+          save_dir: Kersen_DATASETS/datalist_temp/anchang
+          datalist_names:
+            train: trainlist_20230729-0804.txt
+            test: testlist_20230729-0804.txt
+            unknown: null
 
 image_cropper_cfg:
   base_dir: DATASETS/origin

@@ -29,38 +29,37 @@ datalist_cfg:
         testlist_name: testlist_20230630-0710v2.txt
         unknownlist_name: unknownlist_20230630-0710v2.txt
 
-crop_cfg:
+image_cropper_cfg:
   base_dir: DATASETS/origin
   img_json_dirs:
     - ['20230630-0706', null]
     - ['20230710', null]
   save_dir: DATASETS/cropped2_temp
+  grayscale: False
   save_as_jpg: False
-  product_type_mapping:
+  is_draw: False
+  enable_time_printing: False
+  roi_mappings:
     - tags: ['0630-小光源', '2工位']
       product_type: '2工位'
-      roi_collection: null
-      # roi_collection:
-      #   - [1500, 660, 2700, 2160]
-      #   - [500, 660, 1700, 2160]
+      # roi_list: null
+      roi_list:
+        - [1500, 660, 2700, 2160]
     - tags: ['_else_', '2工位']
       product_type: '2工位'
-      roi_collection: null
-      # roi_collection:
-      #   - [2450, 500, 3650, 2000]
-      #   - [1450, 500, 1650, 2000]
+      # roi_list: null
+      roi_list:
+        - [2450, 500, 3650, 2000]
     - tags: ['0630-小光源', '3工位']
       product_type: '3工位'
-      roi_collection: null
-      # roi_collection:
-      #   - [1600, 1150, 3600, 1850]
-      #   - [600, 1150, 2600, 1850]
+      # roi_list: null
+      roi_list:
+        - [1600, 1150, 3600, 1850]
     - tags: ['_else_', '3工位']
       product_type: '3工位'
-      roi_collection: null
-      # roi_collection:
-      #   - [1900, 850, 3900, 1550]
-      #   - [900, 850, 2900, 1550]
+      # roi_list: null
+      roi_list:
+        - [1900, 850, 3900, 1550]
 
 
   locate_pipeline_cfg:
@@ -91,26 +90,28 @@ crop_cfg:
         - type: FilterMask
           area_thresholds: [500]
 
-    cropped_cfg:
-      '2工位':
-        - sort_mode: rightmost
-          index: 0
-          anchor_point: right
-          offset: [-500, -200]
+  locate_cropped_cfg:
+    - product_type: '2工位'
+      cropped_params:  # 每一组配置对应一个roi，可裁剪多个roi
+        - contour_sort_mode: rightmost
+          contour_index: 0
+          anchor_position: right
+          anchor_offset: [-500, -200]
           output_size: [1400, 1600]
-        - sort_mode: rightmost
-          index: 0
-          anchor_point: right
-          offset: [-1500, -1200]
+        - contour_sort_mode: rightmost
+          contour_index: 0
+          anchor_position: right
+          anchor_offset: [-1500, -1200]
           output_size: [1400, 1600]
-      '3工位':
-        - sort_mode: rightmost
-          index: 0
-          anchor_point: right
-          offset: [-900, 0]
+    - product_type: '3工位'
+      cropped_params:
+        - contour_sort_mode: rightmost
+          contour_index: 0
+          anchor_position: right
+          anchor_offset: [-900, 0]
           output_size: [2000, 800]
-        - sort_mode: rightmost
-          index: 0
-          anchor_point: right
-          offset: [-1900, -1000]
+        - contour_sort_mode: rightmost
+          contour_index: 0
+          anchor_position: right
+          anchor_offset: [-1900, -1000]
           output_size: [2000, 800]

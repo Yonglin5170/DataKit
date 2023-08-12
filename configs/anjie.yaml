@@ -54,33 +54,36 @@ datalist_cfg:
   #       trainlist_name: trainlist_20230729-0804.txt
   #       testlist_name: testlist_20230729-0804.txt
 
-crop_cfg:
+image_cropper_cfg:
   base_dir: DATASETS/origin
   img_json_dirs:
     - ['20230728', null]
     - ['20230803', null]
     - ['20230805', null]
   save_dir: DATASETS/cropped/temp
+  grayscale: True
   save_as_jpg: False
-  product_type_mapping:
+  is_draw: False
+  enable_time_printing: False
+  roi_mappings:
     # - tags: ['20230320-46']
     #   product_type: '46'
-    #   roi_collection: null
+    #   roi_list: null
     # - tags: ['20230328-81']
     #   product_type: '81'
-    #   roi_collection: null
+    #   roi_list: null
     # - tags: ['20230329-81']
     #   product_type: '81'
-    #   roi_collection: null
+    #   roi_list: null
     # - tags: ['_else_']
     #   product_type: '81'
-    #   roi_collection: null
+    #   roi_list: null
     - tags: ['_46_']
       product_type: '46'
-      roi_collection: null
+      roi_list: null
     - tags: ['_81_']
       product_type: '81'
-      roi_collection: null
+      roi_list: null
 
   # base_dir: Kersen_DATASETS/origin
   # img_json_dirs:
@@ -88,14 +91,17 @@ crop_cfg:
   #   - ['20230802', null]
   #   - ['20230804', null]
   # save_dir: Kersen_DATASETS/cropped/temp
+  # grayscale: True
   # save_as_jpg: False
-  # product_type_mapping:
+  # is_draw: False
+  # enable_time_printing: False
+  # roi_mappings:
   #   - tags: ['_46_']
   #     product_type: '46'
-  #     roi_collection: null
+  #     roi_list: null
   #   - tags: ['_81_']
   #     product_type: '81'
-  #     roi_collection: null
+  #     roi_list: null
 
 
   locate_pipeline_cfg:
@@ -124,16 +130,18 @@ crop_cfg:
         - type: FilterMask
           area_thresholds: [80000000]
 
-    cropped_cfg:
-      '46':
-        - sort_mode: null
-          index: 0
-          anchor_point: center
-          offset: [0, 0]
+  locate_cropped_cfg:
+    - product_type: '46'
+      cropped_params:
+        - contour_sort_mode: null
+          contour_index: 0
+          anchor_position: center
+          anchor_offset: [0, 0]
           output_size: [14000, 20000]
-      '81':
-        - sort_mode: null
-          index: 0
-          anchor_point: center
-          offset: [0, 0]
+    - product_type: '81'
+      cropped_params:
+        - contour_sort_mode: null
+          contour_index: 0
+          anchor_position: center
+          anchor_offset: [0, 0]
           output_size: [11900, 17000]

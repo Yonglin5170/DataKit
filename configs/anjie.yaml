@@ -70,53 +70,55 @@ data_generator_cfg:
             unknown: null
 
 image_cropper_cfg:
-  base_dir: DATASETS/origin
-  img_json_dirs:
-    - ['20230728', null]
-    - ['20230803', null]
-    - ['20230805', null]
-  save_dir: DATASETS/cropped/temp
-  grayscale: True
-  save_as_jpg: False
-  is_draw: False
-  enable_time_printing: False
-  roi_mappings:
-    # - tags: ['20230320-46']
-    #   product_type: '46'
-    #   roi_list: null
-    # - tags: ['20230328-81']
-    #   product_type: '81'
-    #   roi_list: null
-    # - tags: ['20230329-81']
-    #   product_type: '81'
-    #   roi_list: null
-    # - tags: ['_else_']
-    #   product_type: '81'
-    #   roi_list: null
-    - tags: ['_46_']
-      product_type: '46'
-      roi_list: null
-    - tags: ['_81_']
-      product_type: '81'
-      roi_list: null
-
-  # base_dir: Kersen_DATASETS/origin
+  # base_dir: DATASETS/origin
   # img_json_dirs:
-  #   - ['20230729', null]
-  #   - ['20230802', null]
-  #   - ['20230804', null]
-  # save_dir: Kersen_DATASETS/cropped/temp
+  #   - ['20230728', null]
+  #   - ['20230803', null]
+  #   - ['20230805', null]
+  # save_dir: DATASETS/cropped_temp
   # grayscale: True
   # save_as_jpg: False
   # is_draw: False
+  # only_json: False
   # enable_time_printing: False
   # roi_mappings:
+  #   # - tags: ['20230320-46']
+  #   #   product_type: '46'
+  #   #   roi_list: null
+  #   # - tags: ['20230328-81']
+  #   #   product_type: '81'
+  #   #   roi_list: null
+  #   # - tags: ['20230329-81']
+  #   #   product_type: '81'
+  #   #   roi_list: null
+  #   # - tags: ['_else_']
+  #   #   product_type: '81'
+  #   #   roi_list: null
   #   - tags: ['_46_']
   #     product_type: '46'
   #     roi_list: null
   #   - tags: ['_81_']
   #     product_type: '81'
   #     roi_list: null
+
+  base_dir: Kersen_DATASETS/origin
+  img_json_dirs:
+    - ['20230729', null]
+    - ['20230802', null]
+    - ['20230804', null]
+  save_dir: Kersen_DATASETS/cropped_temp
+  grayscale: True
+  save_as_jpg: False
+  is_draw: False
+  only_json: True
+  enable_time_printing: False
+  roi_mappings:
+    - tags: ['_46_']
+      product_type: '46'
+      roi_list: null
+    - tags: ['_81_']
+      product_type: '81'
+      roi_list: null
 
 
   locate_pipeline_cfg:

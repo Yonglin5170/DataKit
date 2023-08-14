@@ -27,6 +27,7 @@ class ImageCropper(object):
         self.grayscale = image_cropper_cfg['grayscale']
         self.save_as_jpg = image_cropper_cfg['save_as_jpg']
         self.is_draw = image_cropper_cfg['is_draw']
+        self.only_json = image_cropper_cfg['only_json']
         self.enable_time_printing = image_cropper_cfg['enable_time_printing']
         self.roi_mappings = image_cropper_cfg['roi_mappings']
         self.locate_pipeline_cfg = image_cropper_cfg['locate_pipeline_cfg']
@@ -38,6 +39,9 @@ class ImageCropper(object):
         self.logger = None
 
     def draw(self, img_data, roi_info):
+        """
+        在原图上绘制roi
+        """
         if len(img_data.shape) == 2:
             img_data = cv2.cvtColor(img_data, cv2.COLOR_GRAY2BGR)
         roi_list = roi_info['roi_list']
@@ -67,6 +71,9 @@ class ImageCropper(object):
 
     @staticmethod
     def sort_contours(contours, rects, contour_sort_mode):
+        """
+        按指定的排序规则对contour排序
+        """
         if contour_sort_mode is None:
             sorted_rects, sorted_contours = rects, contours
         elif contour_sort_mode == 'rightmost':
@@ -166,15 +173,49 @@ class ImageCropper(object):
             'contour_list': [],
             'rect_list': []
         }
-        if roi_list is None:
-            roi_info = self.get_roi_info_by_locate_pipeline(img_data, product_type)
+        if roi_list is None:  # 未指定roi_list
+            def get_roi_load_path(roi_index):
+                """
+                根据roi索引生成roi加载路径
+                """
+                img_save_path = self.add_index_to_filename(
+                    img_path.replace(self.base_dir, self.save_dir), roi_index)
+                roi_load_path = img_save_path.replace(img_path[-4:], '.txt')
+                return roi_load_path
+            if self.only_json:  # 只保存json
+                # 加载已保存的roi信息
+                roi_info['roi_list'] = []
+                roi_load_path = get_roi_load_path(len(roi_info['roi_list']))
+                while os.path.exists(roi_load_path):
+                    with open(roi_load_path, encoding='utf-8') as f:
+                        lines = [line.strip() for line in f.readlines()]
+                        # lines[0]: 'x1 y1 x2 y2'
+                        roi = tuple(map(int, lines[0].split(' ')))
+                    roi_info['roi_list'].append(roi)
+                    roi_load_path = get_roi_load_path(len(roi_info['roi_list']))
+
+            if not self.only_json or len(roi_info['roi_list']) == 0:
+                # 未加载到roi信息，使用locate pipeline获取
+                roi_info = self.get_roi_info_by_locate_pipeline(img_data, product_type)
         return roi_info
 
     @staticmethod
     def add_index_to_filename(filename, index):
+        """
+        在filename（不包含扩展名）后面加入'_index'
+        """
         prefix, ext = os.path.splitext(filename)
         new_filename = prefix + '_%d%s' % (index, ext)
         return new_filename
+
+    @staticmethod
+    def save_roi_to_file(roi, roi_save_path):
+        """
+        将roi信息写入到文件
+        """
+        x1, y1, x2, y2 = roi
+        with open(roi_save_path, 'w', encoding='utf-8') as f:
+            f.write('%d %d %d %d\n' % (x1, y1, x2, y2))
 
     def crop_images_of_single_dir(self, img_dir, json_dir):
         log_path = os.path.join(self.save_dir, 'log.txt')
@@ -188,7 +229,7 @@ class ImageCropper(object):
                 #     break
                 # cnt += 1
                 img_path = os.path.join(root, filename)
-                print('img_path:', img_path)
+                print('img_path:', img_path, flush=True)
                 if self.grayscale:
                     img_data = cv2.imread(img_path, 0)
                 else:
@@ -214,7 +255,12 @@ class ImageCropper(object):
                     if self.save_as_jpg:
                         img_save_path = img_save_path.replace(img_save_path[-4:], '.jpg')
                     os.makedirs(os.path.dirname(img_save_path), exist_ok=True)
-                    cv2.imwrite(img_save_path, cropped_img)
+                    if not self.only_json:
+                        # 同时保存image和json，否则只保存json
+                        cv2.imwrite(img_save_path, cropped_img)
+                    # 保存roi信息
+                    roi_save_path = img_save_path.replace(img_save_path[-4:], '.txt')
+                    self.save_roi_to_file(roi, roi_save_path)
 
                     json_path = os.path.join(root, filename.replace(filename[-4:], '.json'))
                     if json_dir is not None:  #  指定了json的目录

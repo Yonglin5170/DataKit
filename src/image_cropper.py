@@ -217,6 +217,48 @@ class ImageCropper(object):
         with open(roi_save_path, 'w', encoding='utf-8') as f:
             f.write('%d %d %d %d\n' % (x1, y1, x2, y2))
 
+    def crop_image_by_roi(self, img_data, img_path, roi, roi_index):
+        x1, y1, x2, y2 = roi
+        # crop image by roi
+        cropped_img = img_data[y1 : y2, x1 : x2]
+        img_save_path = img_path.replace(self.base_dir, self.save_dir)
+        img_save_path = self.add_index_to_filename(img_save_path, roi_index)
+        if self.save_as_jpg:
+            img_save_path = img_save_path.replace(img_save_path[-4:], '.jpg')
+        os.makedirs(os.path.dirname(img_save_path), exist_ok=True)
+        if not self.only_json:
+            # 同时保存image和json，否则只保存json
+            cv2.imwrite(img_save_path, cropped_img)
+        # 保存roi信息
+        roi_save_path = img_save_path.replace(img_save_path[-4:], '.txt')
+        self.save_roi_to_file(roi, roi_save_path)
+        return img_save_path
+
+    def crop_json_data_by_roi(self, json_data, json_path, roi, roi_index, img_save_path):
+        x1, y1, x2, y2 = roi
+        new_json_data = copy.deepcopy(json_data)
+        new_json_data['shapes'] = []
+        # crop points in json
+        for i, shape in enumerate(json_data['shapes']):
+            points = np.array(shape['points'])
+            x_in_roi = np.count_nonzero((points[:, 0] >= x1) & (points[:, 0] < x2)) > 0
+            y_in_roi = np.count_nonzero((points[:, 1] >= y1) & (points[:, 1] < y2)) > 0
+            if x_in_roi and y_in_roi:
+                # all points is in roi
+                points[:, 0] -= x1
+                points[:, 1] -= y1
+                shape['points'] = points.tolist()
+                new_json_data['shapes'].append(shape)
+        new_json_data['imagePath'] = os.path.basename(img_save_path)
+        new_json_data['imageHeight'] = y2 - y1
+        new_json_data['imageWidth'] = x2 - x1
+        # 保存json
+        json_save_path = json_path.replace(self.base_dir, self.save_dir)
+        json_save_path = self.add_index_to_filename(json_save_path, roi_index)
+        os.makedirs(os.path.dirname(json_save_path), exist_ok=True)
+        with open(json_save_path, 'w', encoding='utf-8') as f:
+            json.dump(new_json_data, f, indent=4)
+
     def crop_images_of_single_dir(self, img_dir, json_dir):
         log_path = os.path.join(self.save_dir, 'log.txt')
         self.logger = get_root_logger(log_path)
@@ -248,19 +290,7 @@ class ImageCropper(object):
 
                 # 裁剪图片和json
                 for roi_index, roi in enumerate(roi_info['roi_list']):
-                    x1, y1, x2, y2 = roi
-                    # crop image by roi
-                    cropped_img = img_data[y1 : y2, x1 : x2]
-                    img_save_path = self.add_index_to_filename(img_path.replace(self.base_dir, self.save_dir), roi_index)
-                    if self.save_as_jpg:
-                        img_save_path = img_save_path.replace(img_save_path[-4:], '.jpg')
-                    os.makedirs(os.path.dirname(img_save_path), exist_ok=True)
-                    if not self.only_json:
-                        # 同时保存image和json，否则只保存json
-                        cv2.imwrite(img_save_path, cropped_img)
-                    # 保存roi信息
-                    roi_save_path = img_save_path.replace(img_save_path[-4:], '.txt')
-                    self.save_roi_to_file(roi, roi_save_path)
+                    img_save_path = self.crop_image_by_roi(img_data, img_path, roi, roi_index)
 
                     json_path = os.path.join(root, filename.replace(filename[-4:], '.json'))
                     if json_dir is not None:  #  指定了json的目录
@@ -270,26 +300,8 @@ class ImageCropper(object):
                         continue
                     with open(json_path, encoding='utf-8') as f:
                         json_data = json.load(f)
-                    new_json_data = copy.deepcopy(json_data)
-                    new_json_data['shapes'] = []
-                    # crop points in json
-                    for i, shape in enumerate(json_data['shapes']):
-                        points = np.array(shape['points'])
-                        x_in_roi = np.count_nonzero((points[:, 0] >= x1) & (points[:, 0] < x2)) > 0
-                        y_in_roi = np.count_nonzero((points[:, 1] >= y1) & (points[:, 1] < y2)) > 0
-                        if x_in_roi and y_in_roi:
-                            # all points is in roi
-                            points[:, 0] -= x1
-                            points[:, 1] -= y1
-                            shape['points'] = points.tolist()
-                            new_json_data['shapes'].append(shape)
-                    new_json_data['imagePath'] = os.path.basename(img_save_path)
-                    new_json_data['imageHeight'] = y2 - y1
-                    new_json_data['imageWidth'] = x2 - x1
-                    json_save_path = self.add_index_to_filename(json_path.replace(self.base_dir, self.save_dir), roi_index)
-                    os.makedirs(os.path.dirname(json_save_path), exist_ok=True)
-                    with open(json_save_path, 'w', encoding='utf-8') as f:
-                        json.dump(new_json_data, f, indent=4)
+
+                    self.crop_json_data_by_roi(json_data, json_path, roi, roi_index, img_save_path)
 
     def crop_images(self):
         for img_dir, json_dir in self.img_json_dirs:

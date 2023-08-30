@@ -67,6 +67,19 @@ class DataGenerator(object):
         return lines_dict
 
     def process_tasks(self):
+        while True:
+            print("processing_queue:", self.processing_queue)
+            user_input = input("Do you want to continue? (y/n): ")
+
+            if user_input.lower() == 'y':
+                print("Continuing...")
+                break
+            elif user_input.lower() == 'n':
+                print("Stopping.")
+                return  # Exit the loop
+            else:
+                print("Invalid input. Please enter 'y' or 'n'.")
+
         for task_name in self.processing_queue:
             print('processing "%s" task ...' % task_name)
             task = self.task_dict[task_name]

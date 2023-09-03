@@ -5,7 +5,10 @@ import hashlib
 import pandas as pd
 
 
-class ExperimentHelper:
+class ExperimentHelper(object):
+    """
+    实验辅助器，自动化执行实验前后的一些操作
+    """
     def __init__(self, data_root, experiment_root):
         self.data_root = os.path.abspath(data_root)
         self.experiment_root = os.path.abspath(experiment_root)

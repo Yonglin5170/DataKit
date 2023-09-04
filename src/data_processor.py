@@ -1,16 +1,21 @@
 import os
 import json
-import yaml
-from collections import Counter
 import matplotlib.pyplot as plt
+from collections import Counter
+
+import sys
+sys.path.append('/dataset/yonglinwu/SMore/DataKit')
+
+from src import utils
 
 
 class DataProcessor(object):
     """
     用于处理和分析数据的类
     """
-    def __init__(self):
-        pass
+    def __init__(self, delimiter='||', plt_fig_size=(10, 4)):
+        self.delimiter = delimiter
+        self.plt_fig_size = plt_fig_size
 
     def clear_imageData_in_json(self, base_dir, sub_dirs):
         """
@@ -23,27 +28,15 @@ class DataProcessor(object):
                     if '.json' not in filename:
                         continue
                     json_path = os.path.join(root, filename)
-                    with open(json_path, encoding='utf-8') as f:
-                        data = json.load(f)
+                    data = utils.json_load(json_path)
                     if data['imageData'] is not None:
                         print(json_path)
                         data['imageData'] = None
-                        with open(json_path, 'w', encoding='utf-8') as f:
-                            json.dump(data, f, indent=4, ensure_ascii=False)
-
-    @staticmethod
-    def load_file(file_path):
-        try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                return file.readlines()
-        except Exception as e:
-            print(f"Error loading file {file_path}: {e}")
-            return []
+                        utils.json_dump(data, json_path)
 
     @staticmethod
     def load_data_paths_of_exp(exp_yaml_path):
-        with open(exp_yaml_path, 'r', encoding='utf-8') as file:
-            config = yaml.safe_load(file)
+        config = utils.yaml_load(exp_yaml_path)
         data_paths = {}
         for mode in ['train', 'eval']:
             dataset_config = config['data'][f'{mode}_data']['dataset']
@@ -76,10 +69,9 @@ class DataProcessor(object):
         for mode in ['train', 'eval']:
             for data_path in data_paths[mode]:
                 datalist_path = data_path['path']
-                lines = self.load_file(datalist_path)
-                delimiter = '||'
+                lines = utils.read_file(datalist_path)
                 for line in lines:
-                    image_path, json_path = line.strip().split(delimiter)
+                    image_path, json_path = line.strip().split(self.delimiter)
                     full_image_path = os.path.join(data_path['root'], image_path)
                     full_json_path = os.path.join(data_path['root'], json_path)
 
@@ -91,7 +83,7 @@ class DataProcessor(object):
 
     def plot_distribution(self, distribution, index, mode):
         if index == 1:
-            plt.figure(figsize=(10, 4))
+            plt.figure(figsize=self.plt_fig_size)
 
         labels, values = zip(*distribution.items())
         plt.subplot(1, 2, index)
@@ -110,19 +102,17 @@ class DataProcessor(object):
             data_path: {'root': xxx, 'path': xxx}
         """
         datalist_path = data_path['path']
-        lines = self.load_file(datalist_path)
+        lines = utils.read_file(datalist_path)
         label_distribution = Counter()
         OK_cnt, NG_cnt = 0, 0
-        delimiter = '||'
         for line in lines:
-            image_path, json_path = line.strip().split(delimiter)
+            image_path, json_path = line.strip().split(self.delimiter)
             full_json_path = os.path.join(data_path['root'], json_path)
 
             if not os.path.exists(full_json_path):
                 OK_cnt += 1
                 continue
-            with open(full_json_path, 'r', encoding='utf-8') as file:
-                json_data = json.load(file)
+            json_data = utils.json_load(full_json_path)
             for shape in json_data['shapes']:
                 label = shape['label']
                 label_distribution[label] += 1
@@ -185,8 +175,7 @@ class DataProcessor(object):
                     if not os.path.exists(json_path):
                         OK_cnt += 1
                         continue
-                    with open(json_path, encoding='utf-8') as f:
-                        json_data = json.load(f)
+                    json_data = utils.json_load(json_path)
                     for shape in json_data['shapes']:
                         label = shape['label']
                         label_distribution[label] += 1

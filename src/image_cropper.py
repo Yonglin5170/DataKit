@@ -1,15 +1,13 @@
 import os
 import cv2
 import copy
-import json
-import yaml
 import argparse
 import numpy as np
 
 import sys
 sys.path.append('/dataset/yonglinwu/SMore/DataKit')
 
-from src import locate_pipeline
+from src import locate_pipeline, utils
 
 from smore_xrack.utils.logger import get_root_logger
 from smore_xrack.utils.timer import print_profile
@@ -187,10 +185,9 @@ class ImageCropper(object):
                 roi_info['roi_list'] = []
                 roi_load_path = get_roi_load_path(len(roi_info['roi_list']))
                 while os.path.exists(roi_load_path):
-                    with open(roi_load_path, encoding='utf-8') as f:
-                        lines = [line.strip() for line in f.readlines()]
-                        # lines[0]: 'x1 y1 x2 y2'
-                        roi = tuple(map(int, lines[0].split(' ')))
+                    lines = [line.strip() for line in utils.read_file(roi_load_path)]
+                    # lines[0]: 'x1 y1 x2 y2'
+                    roi = tuple(map(int, lines[0].split(' ')))
                     roi_info['roi_list'].append(roi)
                     roi_load_path = get_roi_load_path(len(roi_info['roi_list']))
 
@@ -214,8 +211,8 @@ class ImageCropper(object):
         将roi信息写入到文件
         """
         x1, y1, x2, y2 = roi
-        with open(roi_save_path, 'w', encoding='utf-8') as f:
-            f.write('%d %d %d %d\n' % (x1, y1, x2, y2))
+        lines = ['%d %d %d %d\n' % (x1, y1, x2, y2)]
+        utils.write_to_file(lines, roi_save_path)
 
     def crop_image_by_roi(self, img_data, img_path, roi, roi_index):
         x1, y1, x2, y2 = roi
@@ -256,8 +253,7 @@ class ImageCropper(object):
         json_save_path = json_path.replace(self.base_dir, self.save_dir)
         json_save_path = self.add_index_to_filename(json_save_path, roi_index)
         os.makedirs(os.path.dirname(json_save_path), exist_ok=True)
-        with open(json_save_path, 'w', encoding='utf-8') as f:
-            json.dump(new_json_data, f, indent=4)
+        utils.json_dump(new_json_data, json_save_path)
 
     def crop_images_of_single_dir(self, img_dir, json_dir):
         log_path = os.path.join(self.save_dir, 'log.txt')
@@ -298,8 +294,7 @@ class ImageCropper(object):
                     # 没有对应的json，直接跳过
                     if not os.path.exists(json_path):
                         continue
-                    with open(json_path, encoding='utf-8') as f:
-                        json_data = json.load(f)
+                    json_data = utils.json_load(json_path)
 
                     self.crop_json_data_by_roi(json_data, json_path, roi, roi_index, img_save_path)
 
@@ -314,7 +309,6 @@ if __name__ == '__main__':
     parser.add_argument('--config_path', type=str, required=True)
     args = parser.parse_args()
 
-    with open(args.config_path, encoding='utf-8') as f:
-        config = yaml.safe_load(f)
+    config = utils.yaml_load(args.config_path)
     image_cropper = ImageCropper(config['image_cropper_cfg'])
     image_cropper.crop_images()

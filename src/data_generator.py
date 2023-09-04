@@ -1,8 +1,11 @@
 import os
-import json
-import yaml
 import random
 import argparse
+
+import sys
+sys.path.append('/dataset/yonglinwu/SMore/DataKit')
+
+from src import utils
 
 
 class DataGenerator(object):
@@ -18,13 +21,6 @@ class DataGenerator(object):
         for task in data_generator_cfg['tasks']:
             task_name = task['task_name']
             self.task_dict[task_name] = task
-
-    @staticmethod
-    def write_to_file(path, lines):
-        if path is not None:
-            lines.sort()
-            with open(path, 'w', encoding='utf-8') as f:
-                f.writelines(lines)
 
     def generate_datalist(self, base_dir, img_json_dirs, tags, datalist_paths, train_ratio):
         """
@@ -50,8 +46,7 @@ class DataGenerator(object):
                             lines_dict['train_test'].append('%s%s#\n' % (img_path, self.delimiter))
                         else:
                             # 判断json是否包含unknown label
-                            with open(json_path, encoding='utf-8') as f:
-                                json_data = json.load(f)
+                            json_data = utils.json_load(json_path)
                             contain_unknown_label = any('unknown' in shape['label'] for shape in json_data['shapes'])
                             if contain_unknown_label:
                                 lines_dict['unknown'].append('%s%s%s\n' % (img_path, self.delimiter, json_path))
@@ -63,7 +58,8 @@ class DataGenerator(object):
         lines_dict['train'] = lines_dict['train_test'][:train_cnt]
         lines_dict['test'] = lines_dict['train_test'][train_cnt:]
         for key, path in datalist_paths.items():
-            self.write_to_file(path, lines_dict[key])
+            if path is not None:
+                utils.write_to_file(lines_dict[key], path, sort=True)
         return lines_dict
 
     def process_tasks(self):
@@ -111,7 +107,6 @@ if __name__ == '__main__':
     parser.add_argument('--config_path', type=str, required=True)
     args = parser.parse_args()
 
-    with open(args.config_path, encoding='utf-8') as f:
-        config = yaml.safe_load(f)
+    config = utils.yaml_load(args.config_path)
     data_generator = DataGenerator(config['data_generator_cfg'])
     data_generator.process_tasks()

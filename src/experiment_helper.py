@@ -1,8 +1,12 @@
 import os
-import json
 import shutil
 import hashlib
 import pandas as pd
+
+import sys
+sys.path.append('/dataset/yonglinwu/SMore/DataKit')
+
+from src import utils
 
 
 class ExperimentHelper(object):
@@ -12,17 +16,6 @@ class ExperimentHelper(object):
     def __init__(self, data_root, experiment_root):
         self.data_root = os.path.abspath(data_root)
         self.experiment_root = os.path.abspath(experiment_root)
-
-    @staticmethod
-    def json_load(cfg_path):
-        with open(cfg_path, encoding='utf-8') as r:
-            cfg = json.load(r)
-        return cfg
-
-    @staticmethod
-    def json_dump(cfg_dict, dump_path):
-        with open(dump_path, 'w', encoding='utf-8') as f:
-            json.dump(cfg_dict, f, indent=2, ensure_ascii=False)
 
     def create_experiment_dir(self, baseline_exp_dir_name, new_exp_dir_name):
         new_exp_dir = os.path.join(self.experiment_root, new_exp_dir_name)
@@ -36,8 +29,7 @@ class ExperimentHelper(object):
 
     def modify_dataset(self, exp_dir, new_trainlist, new_validlist=None, new_testlist=None):
         exp_yaml_path = os.path.join(exp_dir, 'exp.yaml')
-        with open(exp_yaml_path, encoding='utf-8') as f:
-            lines = f.readlines()
+        lines = utils.read_file(exp_yaml_path)
         insert_indexes = []
         for i, line in enumerate(lines):
             if 'category_map: *category_map' in line:
@@ -54,8 +46,7 @@ class ExperimentHelper(object):
         trainlist_str = f'        - root: {self.data_root}\n' + \
             f'          path: {new_trainlist}\n'
         lines.insert(insert_indexes[0], trainlist_str)
-        with open(exp_yaml_path, 'w', encoding='utf-8') as f:
-            lines = f.writelines(lines)
+        utils.write_to_file(lines, exp_yaml_path)
 
     def extract_md5(self, file_path):
         md5_hash = hashlib.md5()
@@ -65,19 +56,19 @@ class ExperimentHelper(object):
         return md5_hash.hexdigest()
 
     def modify_sdk_config(self, config_path, keys_value_pairs=[]):
-        config_data = self.json_load(config_path)
+        config_data = utils.json_load(config_path)
         for keys, value in keys_value_pairs:
             temp_config_data = config_data
             for key in keys[:-1]:
                 temp_config_data = temp_config_data[key]
             temp_config_data[keys[-1]] = value
-        self.json_dump(config_data, config_path)
+        utils.json_dump(config_data, config_path, indent=2)
 
     def record_result(self, baseline_exp_dir_name, new_exp_dir):
         metric_dirs = os.listdir(os.path.join(new_exp_dir, 'result/val'))
         metric_dirs.sort(key=lambda x: int(x))
         metric_path = os.path.join(new_exp_dir, f'result/val/{metric_dirs[-1]}/metrics.json')
-        metrics = self.json_load(metric_path)
+        metrics = utils.json_load(metric_path)
         selected_keys = [
             'PixelBasedEvaluator/iou/mean_valid',
             'PixelBasedEvaluator/recall/mean_valid',

@@ -1,11 +1,11 @@
 data_generator_cfg:
-  processing_queue: [anjie_seg, kersen_locate, kersen_seg]
+  processing_queue: [kersen_seg]
   set_all_labels_ok: False
   seed: 42
   delimiter: '||'
   tasks:
     - task_name: anjie_seg
-      base_dir: DATASETS/cropped
+      base_dir: DATASETS/cropped/anjie
       img_json_dirs:
         # - ['20230320-0619/20230320-46', '20230320-0619_jsonv2/20230320-46']
         # - ['20230320-0619/20230328-81', '20230320-0619_jsonv2/20230328-81']
@@ -15,21 +15,24 @@ data_generator_cfg:
         # - ['20230703/0701-81-石墨超区域图_新标注', '20230703/0701-81-石墨超区域图_新标注_修改v2_json']
         # - ['20230705', null]
         - ['20230728', null]
-        - ['20230803', null]
-        - ['20230805', null]
-      train_ratio: 0.8
+        - ['20230803', '20230803_jsonv1']
+        - ['20230805', '20230805_jsonv1']
+        # - ['20230814', null]
+        # - ['20230815', null]
+        # - ['20230818', '20230818_json']
+      train_ratio: 1.0
       generate_cfgs:
         - tags: ['light', '_1.', '_ 10.']
-          save_dir: DATASETS/datalist_temp/mingchang
+          save_dir: DATASETS/datalist/mingchang
           datalist_names:
-            train: trainlist_20230728-0805.txt
-            test: testlist_20230728-0805.txt
+            train: train_anjie_20230818v2.txt
+            test: null
             unknown: null
         - tags: ['dusky', '_2.', '_ 11.']
-          save_dir: DATASETS/datalist_temp/anchang
+          save_dir: DATASETS/datalist/anchang
           datalist_names:
-            train: trainlist_20230728-0805.txt
-            test: testlist_20230728-0805.txt
+            train: train_anjie_20230818v2.txt
+            test: null
             unknown: null
 
     - task_name: kersen_locate
@@ -49,68 +52,67 @@ data_generator_cfg:
             unknown: null
 
     - task_name: kersen_seg
-      base_dir: Kersen_DATASETS/cropped
+      base_dir: DATASETS/cropped/kersen
       img_json_dirs:
-        - ['20230729', null]
-        - ['20230802', null]
-        - ['20230804', null]
-      train_ratio: 0.8
+        # - ['20230720', '20230720_jsonv1']
+        # - ['20230724', '20230724_jsonv2']
+        # - ['20230725', '20230725_jsonv2']
+        # - ['20230729', '20230729_jsonv1']
+        # - ['20230802', '20230802_jsonv1']
+        # - ['20230804', '20230804_jsonv1']
+        - ['20230804-0816', null]
+      train_ratio: 0.9
       generate_cfgs:
         - tags: ['light', '_1.', '_ 10.']
-          save_dir: Kersen_DATASETS/datalist_temp/mingchang
+          save_dir: DATASETS/datalist/mingchang
           datalist_names:
-            train: trainlist_20230729-0804.txt
-            test: testlist_20230729-0804.txt
+            train: train_kersen_20230804-0816.txt
+            test: test_kersen_20230804-0816.txt
             unknown: null
         - tags: ['dusky', '_2.', '_ 11.']
-          save_dir: Kersen_DATASETS/datalist_temp/anchang
+          save_dir: DATASETS/datalist/anchang
           datalist_names:
-            train: trainlist_20230729-0804.txt
-            test: testlist_20230729-0804.txt
+            train: train_kersen_20230804-0816.txt
+            test: test_kersen_20230804-0816.txt
             unknown: null
 
 image_cropper_cfg:
-  # base_dir: DATASETS/origin
+  # base_dir: DATASETS/origin/anjie
   # img_json_dirs:
-  #   - ['20230728', null]
-  #   - ['20230803', null]
-  #   - ['20230805', null]
-  # save_dir: DATASETS/cropped_temp
+  #   # - ['20230728', null]
+  #   - ['20230803', '20230803_jsonv1']
+  #   - ['20230805', '20230805_jsonv1']
+  #   # - ['20230814', null]
+  #   # - ['20230815', null]
+  #   # - ['20230818', '20230818_json']
+  # save_dir: DATASETS/cropped/anjie
   # grayscale: True
   # save_as_jpg: False
   # is_draw: False
   # only_json: False
   # enable_time_printing: False
   # roi_mappings:
-  #   # - tags: ['20230320-46']
-  #   #   product_type: '46'
-  #   #   roi_list: null
-  #   # - tags: ['20230328-81']
-  #   #   product_type: '81'
-  #   #   roi_list: null
-  #   # - tags: ['20230329-81']
-  #   #   product_type: '81'
-  #   #   roi_list: null
-  #   # - tags: ['_else_']
-  #   #   product_type: '81'
-  #   #   roi_list: null
-  #   - tags: ['_46_']
+  #   - tags: ['_46_', '-46']
   #     product_type: '46'
   #     roi_list: null
-  #   - tags: ['_81_']
+  #   - tags: ['_81_', '-81']
   #     product_type: '81'
   #     roi_list: null
 
-  base_dir: Kersen_DATASETS/origin
+  base_dir: DATASETS/origin/kersen
   img_json_dirs:
-    - ['20230729', null]
-    - ['20230802', null]
-    - ['20230804', null]
-  save_dir: Kersen_DATASETS/cropped_temp
+    # - ['20230720', '20230720_jsonv1']
+    # - ['20230724', '20230724_jsonv2']
+    # - ['20230725', '20230725_jsonv2']
+    # - ['20230729', '20230729_jsonv1']
+    # - ['20230802', '20230802_jsonv1']
+    # - ['20230804', '20230804_jsonv1']
+    - ['20230804-0816/毛丝镀镍', null]
+  save_dir: DATASETS/cropped/kersen
   grayscale: True
   save_as_jpg: False
   is_draw: False
-  only_json: True
+  only_json: False
   enable_time_printing: False
   roi_mappings:
     - tags: ['_46_']

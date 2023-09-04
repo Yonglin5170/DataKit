@@ -1,5 +1,5 @@
 data_generator_cfg:
-  processing_queue: [locate, seg]
+  processing_queue: [seg]
   set_all_labels_ok: False
   seed: 42
   delimiter: '||'
@@ -14,39 +14,52 @@ data_generator_cfg:
         - tags: ['.bmp']
           save_dir: DATASETS/datalist_temp/locate
           datalist_names:
-            train: trainlist_20230630-0710.txt
-            test: testlist_20230630-0710.txt
+            train: train_20230630-0710.txt
+            test: test_20230630-0710.txt
             unknown: null
 
     - task_name: seg
       base_dir: DATASETS/cropped2
       img_json_dirs:
-        - ['20230630-0706', null]
-        - ['20230710', null]
-      train_ratio: 0.8
+        # - ['20230630-0706', null]
+        # - ['20230710', null]
+        # - ['20230711', null]
+        # - ['20230815-0816', null]
+        # - ['20230818-0819', null]
+        # - ['20230822-0823', null]
+        # - ['20230824', null]
+        - ['20230828', null]
+      train_ratio: 0.9
       generate_cfgs:
         - tags: ['2工位']
           save_dir: DATASETS/datalist_temp/2工位
           datalist_names:
-            train: trainlist_20230630-0710v2.txt
-            test: testlist_20230630-0710v2.txt
-            unknown: unknownlist_20230630-0710v2.txt
+            train: train_20230828.txt
+            test: test_20230828.txt
+            unknown: null
         - tags: ['3工位']
           save_dir: DATASETS/datalist_temp/3工位
           datalist_names:
-            train: trainlist_20230630-0710v2.txt
-            test: testlist_20230630-0710v2.txt
-            unknown: unknownlist_20230630-0710v2.txt
+            train: train_20230828.txt
+            test: test_20230828.txt
+            unknown: null
 
 image_cropper_cfg:
   base_dir: DATASETS/origin
   img_json_dirs:
-    - ['20230630-0706', null]
-    - ['20230710', null]
-  save_dir: DATASETS/cropped2_temp
+    # - ['20230630-0706', null]
+    # - ['20230710', null]
+    # - ['20230711', null]
+    # - ['20230815-0816', null]
+    # - ['20230818-0819', null]
+    # - ['20230822-0823', null]
+    # - ['20230824', null]
+    - ['20230828', null]
+  save_dir: DATASETS/cropped2
   grayscale: False
   save_as_jpg: False
   is_draw: False
+  only_json: False
   enable_time_printing: False
   roi_mappings:
     - tags: ['0630-小光源', '2工位']
@@ -58,7 +71,8 @@ image_cropper_cfg:
       product_type: '2工位'
       # roi_list: null
       roi_list:
-        - [2450, 500, 3650, 2000]
+        # - [2450, 500, 3650, 2000]
+        - [2400, 200, 3600, 1700]
     - tags: ['0630-小光源', '3工位']
       product_type: '3工位'
       # roi_list: null
@@ -68,7 +82,8 @@ image_cropper_cfg:
       product_type: '3工位'
       # roi_list: null
       roi_list:
-        - [1900, 850, 3900, 1550]
+        # - [1900, 850, 3900, 1550]
+        - [1850, 550, 3850, 1250]
 
 
   locate_pipeline_cfg:

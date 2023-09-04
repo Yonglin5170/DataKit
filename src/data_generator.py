@@ -6,6 +6,7 @@ import sys
 sys.path.append('/dataset/yonglinwu/SMore/DataKit')
 
 from src import utils
+from src.data_processor import DataProcessor
 
 
 class DataGenerator(object):
@@ -22,6 +23,8 @@ class DataGenerator(object):
             task_name = task['task_name']
             self.task_dict[task_name] = task
 
+        self.data_processor = DataProcessor(delimiter=self.delimiter, enable_plt=False)
+
     def generate_datalist(self, base_dir, img_json_dirs, tags, datalist_paths, train_ratio):
         """
         生成train、test和unknown数据列表
@@ -30,7 +33,7 @@ class DataGenerator(object):
         lines_dict = {key: [] for key in datalist_paths.keys()}  # 初始化lines_dict
         for img_dir, json_dir in img_json_dirs:
             data_dir = os.path.join(base_dir, img_dir)
-            print('data_dir:', data_dir)
+            # print('data_dir:', data_dir)
             for root, dirnames, filenames in os.walk(data_dir):
                 for filename in filenames:
                     # 筛选出包含任意一个tag的文件
@@ -77,13 +80,15 @@ class DataGenerator(object):
                 print("Invalid input. Please enter 'y' or 'n'.")
 
         for task_name in self.processing_queue:
-            print('processing "%s" task ...' % task_name)
+            print('processing %s task ...' % task_name)
             task = self.task_dict[task_name]
             base_dir = task['base_dir']
             img_json_dirs = task['img_json_dirs']
             train_ratio = task['train_ratio']
             for generate_cfg in task['generate_cfgs']:
                 tags = generate_cfg['tags']
+                self.data_processor.get_stats_of_dirs(base_dir, img_json_dirs, tags)
+
                 save_dir = generate_cfg['save_dir']
                 os.makedirs(save_dir, exist_ok=True)
                 datalist_names = generate_cfg['datalist_names']
@@ -100,6 +105,7 @@ class DataGenerator(object):
                     'train_test': None  # 用于临时存储训练和测试数据
                 }
                 _ = self.generate_datalist(base_dir, img_json_dirs, tags, datalist_paths, train_ratio)
+            print('%s task finished.' % task_name)
 
 
 if __name__ == '__main__':

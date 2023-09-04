@@ -13,8 +13,9 @@ class DataProcessor(object):
     """
     用于处理和分析数据的类
     """
-    def __init__(self, delimiter='||', plt_fig_size=(10, 4)):
+    def __init__(self, delimiter='||', enable_plt=True, plt_fig_size=(10, 4)):
         self.delimiter = delimiter
+        self.enable_plt = enable_plt
         self.plt_fig_size = plt_fig_size
 
     def clear_imageData_in_json(self, base_dir, sub_dirs):
@@ -147,13 +148,14 @@ class DataProcessor(object):
             print(f'all {mode} label distribution:', json.dumps(all_label_distribution, indent=4))
             print(f'total_OK_cnt: {total_OK_cnt}, total_NG_cnt: {total_NG_cnt}')
 
-            self.plot_distribution(all_label_distribution, i + 1, mode)
+            if self.enable_plt:
+                self.plot_distribution(all_label_distribution, i + 1, mode)
 
     def get_stats_of_dirs(self, base_dir, img_json_dirs, tags, certain_labels=[]):
         """
         获取指定文件夹中所有数据的标签分布
         """
-        print('tags:', tags)
+        print(f'getting stats of {tags} ...')
         all_label_distribution = Counter()
         total_OK_cnt, total_NG_cnt = 0, 0
         for img_dir, json_dir in img_json_dirs:
@@ -204,7 +206,8 @@ class DataProcessor(object):
         print('all_label_distribution:', json.dumps(all_label_distribution, indent=4))
         print(f'total_OK_cnt: {total_OK_cnt}, total_NG_cnt: {total_NG_cnt}')
 
-        self.plot_distribution(all_label_distribution, 1, 'all')
+        if self.enable_plt:
+            self.plot_distribution(all_label_distribution, 1, 'all')
 
 
 if __name__ == '__main__':

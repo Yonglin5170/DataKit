@@ -244,6 +244,9 @@ class ImageCropper(object):
                 # all points is in roi
                 points[:, 0] -= x1
                 points[:, 1] -= y1
+                # clip points to the right and bottom boundaries
+                points[:, 0] = np.clip(points[:, 0], 0, x2 - x1)
+                points[:, 1] = np.clip(points[:, 1], 0, y2 - y1)
                 shape['points'] = points.tolist()
                 new_json_data['shapes'].append(shape)
         new_json_data['imagePath'] = os.path.basename(img_save_path)

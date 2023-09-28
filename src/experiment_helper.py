@@ -25,6 +25,10 @@ class ExperimentHelper(object):
             os.path.join(baseline_exp_dir, 'exp.yaml'),
             os.path.join(new_exp_dir, 'exp.yaml')
         )
+        shutil.copy(
+            os.path.join(baseline_exp_dir, 'scheduler.json'),
+            os.path.join(new_exp_dir, 'scheduler.json')
+        )
         return new_exp_dir
 
     def modify_dataset(self, exp_dir, new_trainlist, new_validlist=None, new_testlist=None):

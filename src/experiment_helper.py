@@ -19,7 +19,10 @@ class ExperimentHelper(object):
 
     def create_experiment_dir(self, baseline_exp_dir_name, new_exp_dir_name):
         new_exp_dir = os.path.join(self.experiment_root, new_exp_dir_name)
-        os.makedirs(new_exp_dir, exist_ok=True)
+        if os.path.exists(new_exp_dir):
+            print('%s exists!' % new_exp_dir)
+            return new_exp_dir
+        os.mkdir(new_exp_dir)
         baseline_exp_dir = os.path.join(self.experiment_root, baseline_exp_dir_name)
         shutil.copy(
             os.path.join(baseline_exp_dir, 'exp.yaml'),
@@ -29,6 +32,11 @@ class ExperimentHelper(object):
             os.path.join(baseline_exp_dir, 'scheduler.json'),
             os.path.join(new_exp_dir, 'scheduler.json')
         )
+        if os.path.exists(os.path.join(baseline_exp_dir, 'customized')):
+            shutil.copytree(
+                os.path.join(baseline_exp_dir, 'customized'),
+                os.path.join(new_exp_dir, 'customized')
+            )
         return new_exp_dir
 
     def modify_dataset(self, exp_dir, new_trainlist, new_validlist=None, new_testlist=None):

@@ -29,11 +29,8 @@ class ImageCropper(object):
         self.enable_time_printing = image_cropper_cfg['enable_time_printing']
         self.roi_mappings = image_cropper_cfg['roi_mappings']
         self.locate_pipeline_cfg = image_cropper_cfg['locate_pipeline_cfg']
-        self.cropped_params_by_product = {}
-        for each_cropped_cfg in image_cropper_cfg['locate_cropped_cfg']:
-            product_type = each_cropped_cfg['product_type']
-            self.cropped_params_by_product[product_type] = each_cropped_cfg['cropped_params']
-        self.locate_pipeline = None
+        self._locate_pipeline = None
+        self._cropped_params_by_product = None
         self.logger = None
 
     def draw(self, img_data, roi_info):
@@ -62,10 +59,19 @@ class ImageCropper(object):
         return img_data
 
     def locate_pipeline_forward(self, img_data):
-        if self.locate_pipeline is None:
-            self.locate_pipeline = build_pipeline(self.locate_pipeline_cfg)
-        outputs = self.locate_pipeline.forward(img_data=img_data)
+        if self._locate_pipeline is None:
+            self._locate_pipeline = build_pipeline(self.locate_pipeline_cfg)
+        outputs = self._locate_pipeline.forward(img_data=img_data)
         return outputs
+
+    @property
+    def cropped_params_by_product(self):
+        if self._cropped_params_by_product is None:
+            self._cropped_params_by_product = {}
+            for each_cropped_cfg in self.locate_pipeline_cfg:
+                product_type = each_cropped_cfg['product_type']
+                self._cropped_params_by_product[product_type] = each_cropped_cfg['cropped_params']
+        return self._cropped_params_by_product
 
     @staticmethod
     def sort_contours(contours, rects, contour_sort_mode):

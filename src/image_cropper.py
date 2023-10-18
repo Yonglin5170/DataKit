@@ -29,6 +29,7 @@ class ImageCropper(object):
         self.enable_time_printing = image_cropper_cfg['enable_time_printing']
         self.roi_mappings = image_cropper_cfg['roi_mappings']
         self.locate_pipeline_cfg = image_cropper_cfg['locate_pipeline_cfg']
+        self.locate_cropped_cfg = image_cropper_cfg['locate_cropped_cfg']
         self._locate_pipeline = None
         self._cropped_params_by_product = None
         self.logger = None
@@ -68,7 +69,7 @@ class ImageCropper(object):
     def cropped_params_by_product(self):
         if self._cropped_params_by_product is None:
             self._cropped_params_by_product = {}
-            for each_cropped_cfg in self.locate_pipeline_cfg:
+            for each_cropped_cfg in self.locate_cropped_cfg:
                 product_type = each_cropped_cfg['product_type']
                 self._cropped_params_by_product[product_type] = each_cropped_cfg['cropped_params']
         return self._cropped_params_by_product

@@ -232,7 +232,7 @@ class ImageCropper(object):
         os.makedirs(os.path.dirname(img_save_path), exist_ok=True)
         if not self.only_json:
             # 同时保存image和json，否则只保存json
-            cv2.imwrite(img_save_path, cropped_img)
+            utils.cv_imwrite(img_save_path, cropped_img)
         # 保存roi信息
         roi_save_path = img_save_path.replace(img_save_path[-4:], '.txt')
         self.save_roi_to_file(roi, roi_save_path)
@@ -279,9 +279,9 @@ class ImageCropper(object):
                 img_path = os.path.join(root, filename)
                 print('img_path:', img_path, flush=True)
                 if self.grayscale:
-                    img_data = cv2.imread(img_path, 0)
+                    img_data = utils.cv_imread(img_path, flags=cv2.IMREAD_GRAYSCALE)
                 else:
-                    img_data = cv2.imread(img_path)
+                    img_data = utils.cv_imread(img_path, flags=cv2.IMREAD_COLOR)
                 roi_info = self.get_roi_info(img_path, img_data)
 
                 if self.is_draw:
@@ -291,7 +291,7 @@ class ImageCropper(object):
                     if self.save_as_jpg:
                         img_save_path = img_save_path.replace(img_save_path[-4:], '.jpg')
                     os.makedirs(os.path.dirname(img_save_path), exist_ok=True)
-                    cv2.imwrite(img_save_path, img_with_drawing)
+                    utils.cv_imwrite(img_save_path, img_with_drawing)
                     continue
 
                 # 裁剪图片和json

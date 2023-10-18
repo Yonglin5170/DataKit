@@ -7,6 +7,7 @@ from smore_xrack.pipeline.pipeline_base import PipelineBase
 from smore_xrack.pipeline.pipeline_builder import PIPELINE
 from smore_xrack.utils.constant import SegOutputConstants
 
+USE_GPU = True
 
 @PIPELINE.register_module()
 class LocatePipeline(PipelineBase):
@@ -22,11 +23,13 @@ class LocatePipeline(PipelineBase):
             self._loc_module = build_module(self.loc_module_cfg)
         return self._loc_module
 
-    @profile("LocatePipeline", use_gpu=True)
+    @profile("LocatePipeline", use_gpu=USE_GPU)
     def forward(self, img_data: np.ndarray, **kwargs):
         if len(img_data.shape) == 2:
             img_data = np.expand_dims(img_data, -1)
-        img_tensor = torch.from_numpy(img_data).cuda(non_blocking=False)
+        img_tensor = torch.from_numpy(img_data)
+        if USE_GPU:
+            img_tensor = img_tensor.cuda(non_blocking=False)
         loc_module_output = self.loc_module.forward([img_tensor])[0]
         output_dict = {
             'contours': loc_module_output[SegOutputConstants.CONTOURS][0],

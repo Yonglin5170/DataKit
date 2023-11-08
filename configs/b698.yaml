@@ -19,71 +19,57 @@ data_generator_cfg:
             unknown: null
 
     - task_name: seg
-      base_dir: DATASETS/cropped2
+      base_dir: DATASETS/cropped3
       img_json_dirs:
-        # - ['20230630-0706', null]
-        # - ['20230710', null]
-        # - ['20230711', null]
-        # - ['20230815-0816', null]
-        # - ['20230818-0819', null]
-        # - ['20230822-0823', null]
-        # - ['20230824', null]
-        - ['20230828', null]
+        - ['20230923-0927', null]
+        - ['20231010', null]
       train_ratio: 0.9
       generate_cfgs:
         - tags: ['2工位']
-          save_dir: DATASETS/datalist_temp/2工位
+          save_dir: DATASETS/datalist/2工位
           datalist_names:
-            train: train_20230828.txt
-            test: test_20230828.txt
+            train: train_20230923-1010.txt
+            test: test_20230923-1010.txt
             unknown: null
         - tags: ['3工位']
-          save_dir: DATASETS/datalist_temp/3工位
+          save_dir: DATASETS/datalist/3工位
           datalist_names:
-            train: train_20230828.txt
-            test: test_20230828.txt
+            train: train_20230923-1010.txt
+            test: test_20230923-1010.txt
             unknown: null
 
 image_cropper_cfg:
   base_dir: DATASETS/origin
   img_json_dirs:
-    # - ['20230630-0706', null]
-    # - ['20230710', null]
-    # - ['20230711', null]
-    # - ['20230815-0816', null]
-    # - ['20230818-0819', null]
-    # - ['20230822-0823', null]
-    # - ['20230824', null]
-    - ['20230828', null]
-  save_dir: DATASETS/cropped2
+    - ['20230923-0927', null]
+    - ['20231010', null]
+  save_dir: DATASETS/cropped3
   grayscale: False
   save_as_jpg: False
   is_draw: False
   only_json: False
   enable_time_printing: False
   roi_mappings:
-    - tags: ['0630-小光源', '2工位']
+    - conditions: ['0630-小光源', '2工位']
       product_type: '2工位'
-      # roi_list: null
       roi_list:
         - [1500, 660, 2700, 2160]
-    - tags: ['_else_', '2工位']
-      product_type: '2工位'
-      # roi_list: null
-      roi_list:
-        # - [2450, 500, 3650, 2000]
-        - [2400, 200, 3600, 1700]
-    - tags: ['0630-小光源', '3工位']
+    - conditions: ['0630-小光源', '3工位']
       product_type: '3工位'
-      # roi_list: null
       roi_list:
         - [1600, 1150, 3600, 1850]
-    - tags: ['_else_', '3工位']
-      product_type: '3工位'
-      # roi_list: null
+    - conditions: ['_else_', '2工位']
+      product_type: '2工位'
       roi_list:
+        - [1500, 800, 2700, 2300]
+        # - [2450, 500, 3650, 2000]
+        # - [2400, 200, 3600, 1700]
+    - conditions: ['_else_', '3工位']
+      product_type: '3工位'
+      roi_list:
+        - [1150, 1150, 3150, 1850]
         # - [1900, 850, 3900, 1550]
-        - [1850, 550, 3850, 1250]
+        # - [1850, 550, 3850, 1250]
 
 
   locate_pipeline_cfg:

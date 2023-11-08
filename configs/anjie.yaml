@@ -1,5 +1,5 @@
 data_generator_cfg:
-  processing_queue: [kersen_seg]
+  processing_queue: [kersen_pos2_seg]
   set_all_labels_ok: False
   seed: 42
   delimiter: '||'
@@ -76,29 +76,20 @@ data_generator_cfg:
             test: test_kersen_20230804-0816.txt
             unknown: null
 
-image_cropper_cfg:
-  # base_dir: DATASETS/origin/anjie
-  # img_json_dirs:
-  #   # - ['20230728', null]
-  #   - ['20230803', '20230803_jsonv1']
-  #   - ['20230805', '20230805_jsonv1']
-  #   # - ['20230814', null]
-  #   # - ['20230815', null]
-  #   # - ['20230818', '20230818_json']
-  # save_dir: DATASETS/cropped/anjie
-  # grayscale: True
-  # save_as_jpg: False
-  # is_draw: False
-  # only_json: False
-  # enable_time_printing: False
-  # roi_mappings:
-  #   - tags: ['_46_', '-46']
-  #     product_type: '46'
-  #     roi_list: null
-  #   - tags: ['_81_', '-81']
-  #     product_type: '81'
-  #     roi_list: null
+    - task_name: kersen_pos2_seg
+      base_dir: DATASETS/origin/kersen_pos2
+      img_json_dirs:
+        - ['20231024', '20231024_jsonv1']
+      train_ratio: 0.9
+      generate_cfgs:
+        - tags: ['.jpg']
+          save_dir: DATASETS/datalist/mianzhen
+          datalist_names:
+            train: train_20231024v2.txt
+            test: test_20231024v2.txt
+            unknown: null
 
+image_cropper_cfg:
   base_dir: DATASETS/origin/kersen
   img_json_dirs:
     # - ['20230720', '20230720_jsonv1']
@@ -115,10 +106,10 @@ image_cropper_cfg:
   only_json: False
   enable_time_printing: False
   roi_mappings:
-    - tags: ['_46_']
+    - conditions: ['_46_']
       product_type: '46'
       roi_list: null
-    - tags: ['_81_']
+    - conditions: ['_81_']
       product_type: '81'
       roi_list: null
 

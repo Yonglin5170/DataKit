@@ -1,0 +1,38 @@
+data_generator_cfg:
+  processing_queue: [seg]
+  set_all_labels_ok: False
+  seed: 42
+  delimiter: '||'
+  tasks:
+    - task_name: seg
+      base_dir: DATASETS/origin/TongZhouGuang
+      img_json_dirs:
+        - ['20231107-tz', null]
+      train_ratio: 1.0
+      generate_cfgs:
+        - tags: ['.bmp']
+          save_dir: DATASETS/datalist/TongZhouGuang
+          datalist_names:
+            train: train_20231107.txt
+            test: null
+            unknown: null
+
+image_cropper_cfg:
+  base_dir: DATASETS/origin/TongZhouGuang
+  img_json_dirs:
+    - ['20231018', null]
+  save_dir: DATASETS/cropped/TongZhouGuang
+  grayscale: False
+  save_as_jpg: False
+  is_draw: False
+  only_json: False
+  enable_time_printing: False
+  roi_mappings:
+    - conditions: ['tz_']
+      product_type: 'tz'
+      # roi_list: null
+      roi_list:
+        - [0, 0, 4096, 3000]
+
+  locate_pipeline_cfg: null
+  locate_cropped_cfg: null

@@ -150,15 +150,15 @@ class ImageCropper(object):
         找到与img_path最匹配的roi_mapping
         """
         i = 0
-        tag_num = len(self.roi_mappings[0]['tags'])
+        tag_num = len(self.roi_mappings[0]['conditions'])
         mapping_queue = self.roi_mappings.copy()
         new_mapping_queue = []
         # 对每个tag做循环
         while i < tag_num:
-            new_mapping_queue = [mapping for mapping in mapping_queue if mapping['tags'][i] in img_path]
+            new_mapping_queue = [mapping for mapping in mapping_queue if mapping['conditions'][i] in img_path]
             # 所有mapping都不匹配，则加入tag == '_else_'的mapping
             if len(new_mapping_queue) == 0:
-                new_mapping_queue = [mapping for mapping in mapping_queue if mapping['tags'][i] == '_else_']
+                new_mapping_queue = [mapping for mapping in mapping_queue if mapping['conditions'][i] == '_else_']
             mapping_queue = new_mapping_queue.copy()
             new_mapping_queue = []
             i += 1

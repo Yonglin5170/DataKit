@@ -13,10 +13,13 @@ class DataProcessor(object):
     """
     用于处理和分析数据的类
     """
-    def __init__(self, delimiter='||', enable_plt=True, plt_fig_size=(10, 4)):
+    BG_LABEL = 'bg'
+    def __init__(self, delimiter='||', enable_plt=True, plt_fig_size=(10, 4), use_category_map=True):
         self.delimiter = delimiter
         self.enable_plt = enable_plt
         self.plt_fig_size = plt_fig_size
+        self.use_category_map = use_category_map
+        self._category2label = None
 
     def clear_imageData_in_json(self, base_dir, sub_dirs):
         """
@@ -35,9 +38,23 @@ class DataProcessor(object):
                         data['imageData'] = None
                         utils.json_dump(data, json_path)
 
-    @staticmethod
-    def load_data_paths_of_exp(exp_yaml_path):
+    def _init_category2label(self, config):
+        if self.use_category_map:
+            self._category2label = {}
+            label_map = config['other']['label_map']
+            category_map = config['other']['category_map']
+            for i, (label, categories) in enumerate(zip(label_map, category_map)):
+                if i == 0:
+                    for category in categories:
+                        self._category2label[category] = self.BG_LABEL
+                else:
+                    for category in categories:
+                        self._category2label[category] = label
+        # print(self._category2label)
+
+    def load_data_paths_of_exp(self, exp_yaml_path):
         config = utils.yaml_load(exp_yaml_path)
+        self._init_category2label(config)
         data_paths = {}
         for mode in ['train', 'eval']:
             dataset_config = config['data'][f'{mode}_data']['dataset']
@@ -97,6 +114,15 @@ class DataProcessor(object):
         if index == 2:
             plt.show()
 
+    def get_label(self, label):
+        if self.use_category_map:
+            try:
+                return self._category2label[label]
+            except:
+                return label
+        else:
+            return label
+
     def get_stats_of_data_path(self, data_path, certain_labels=[]):
         """
         获取指定数据集的标签分布
@@ -108,15 +134,19 @@ class DataProcessor(object):
         OK_cnt, NG_cnt = 0, 0
         for line in lines:
             image_path, json_path = line.strip().split(self.delimiter)
-            full_json_path = os.path.join(data_path['root'], json_path)
+            if json_path.startswith('/'):
+                full_json_path = data_path['root'] + json_path
+            else:
+                full_json_path = os.path.join(data_path['root'], json_path)
 
             if not os.path.exists(full_json_path):
                 OK_cnt += 1
                 continue
             json_data = utils.json_load(full_json_path)
             for shape in json_data['shapes']:
-                label = shape['label']
-                label_distribution[label] += 1
+                label = self.get_label(shape['label'])
+                if label != self.BG_LABEL:
+                    label_distribution[label] += 1
             OK_cnt += int(len(json_data['shapes']) == 0)
             NG_cnt += int(len(json_data['shapes']) > 0)
             
@@ -179,8 +209,9 @@ class DataProcessor(object):
                         continue
                     json_data = utils.json_load(json_path)
                     for shape in json_data['shapes']:
-                        label = shape['label']
-                        label_distribution[label] += 1
+                        label = self.get_label(shape['label'])
+                        if label != self.BG_LABEL:
+                            label_distribution[label] += 1
                     OK_cnt += int(len(json_data['shapes']) == 0)
                     NG_cnt += int(len(json_data['shapes']) > 0)
 

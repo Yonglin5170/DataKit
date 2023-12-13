@@ -90,7 +90,7 @@ data_generator_cfg:
             unknown: null
 
 image_cropper_cfg:
-  base_dir: DATASETS/origin/kersen
+  base_dir: DATASETS/test
   img_json_dirs:
     # - ['20230720', '20230720_jsonv1']
     # - ['20230724', '20230724_jsonv2']
@@ -98,10 +98,11 @@ image_cropper_cfg:
     # - ['20230729', '20230729_jsonv1']
     # - ['20230802', '20230802_jsonv1']
     # - ['20230804', '20230804_jsonv1']
-    - ['20230804-0816/毛丝镀镍', null]
-  save_dir: DATASETS/cropped/kersen
+    # - ['20230804-0816/毛丝镀镍', null]
+    - ['kersen_1212_褶皱验证', null]
+  save_dir: DATASETS/cropped/test2
+  save_format: '.png'  # null / '.bmp' / '.jpg' / '.png'
   grayscale: True
-  save_as_jpg: False
   is_draw: False
   only_json: False
   enable_time_printing: False

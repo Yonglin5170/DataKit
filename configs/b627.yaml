@@ -7,14 +7,14 @@ data_generator_cfg:
     - task_name: seg
       base_dir: DATASETS/origin/TongZhouGuang
       img_json_dirs:
-        - ['20231107-tz', null]
-      train_ratio: 1.0
+        - ['20231205-tz', null]
+      train_ratio: 0.9
       generate_cfgs:
         - tags: ['.bmp']
           save_dir: DATASETS/datalist/TongZhouGuang
           datalist_names:
-            train: train_20231107.txt
-            test: null
+            train: train_20231205.txt
+            test: test_20231205.txt
             unknown: null
 
 image_cropper_cfg:
@@ -22,8 +22,8 @@ image_cropper_cfg:
   img_json_dirs:
     - ['20231018', null]
   save_dir: DATASETS/cropped/TongZhouGuang
+  save_format: null  # null / '.bmp' / '.jpg' / '.png'
   grayscale: False
-  save_as_jpg: False
   is_draw: False
   only_json: False
   enable_time_printing: False

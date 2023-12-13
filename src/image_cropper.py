@@ -23,7 +23,7 @@ class ImageCropper(object):
         self.img_json_dirs = image_cropper_cfg['img_json_dirs']
         self.save_dir = image_cropper_cfg['save_dir']
         self.grayscale = image_cropper_cfg['grayscale']
-        self.save_as_jpg = image_cropper_cfg['save_as_jpg']
+        self.save_format = image_cropper_cfg['save_format']
         self.is_draw = image_cropper_cfg['is_draw']
         self.only_json = image_cropper_cfg['only_json']
         self.enable_time_printing = image_cropper_cfg['enable_time_printing']
@@ -227,8 +227,8 @@ class ImageCropper(object):
         cropped_img = img_data[y1 : y2, x1 : x2]
         img_save_path = img_path.replace(self.base_dir, self.save_dir)
         img_save_path = self.add_index_to_filename(img_save_path, roi_index)
-        if self.save_as_jpg:
-            img_save_path = img_save_path.replace(img_save_path[-4:], '.jpg')
+        if self.save_format is not None:
+            img_save_path = img_save_path.replace(img_save_path[-4:], self.save_format)
         os.makedirs(os.path.dirname(img_save_path), exist_ok=True)
         if not self.only_json:
             # 同时保存image和json，否则只保存json
@@ -288,8 +288,8 @@ class ImageCropper(object):
                     # 将roi绘制在图像上，仅保存绘制后的图像，json不做crop
                     img_with_drawing = self.draw(img_data, roi_info)
                     img_save_path = img_path.replace(self.base_dir, self.save_dir)
-                    if self.save_as_jpg:
-                        img_save_path = img_save_path.replace(img_save_path[-4:], '.jpg')
+                    if self.save_format is not None:
+                        img_save_path = img_save_path.replace(img_save_path[-4:], self.save_format)
                     os.makedirs(os.path.dirname(img_save_path), exist_ok=True)
                     utils.cv_imwrite(img_save_path, img_with_drawing)
                     continue

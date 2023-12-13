@@ -5,47 +5,54 @@ data_generator_cfg:
   delimiter: '||'
   tasks:
     - task_name: locate
-      base_dir: DATASETS/origin
+      base_dir: DATASETS/cropped3
       img_json_dirs:
-        - ['20230630-0706', 'guangban_20230630-0710-json/20230630-0706']
-        - ['20230710', 'guangban_20230630-0710-json/20230710']
-      train_ratio: 0.8
+        # - ['20230630-0706', 'guangban_20230630-0710-json/20230630-0706']
+        # - ['20230710', 'guangban_20230630-0710-json/20230710']
+        # - ['guangban_20230830-0923', null]
+        - ['guangban_20231108-1114', null]
+        - ['20231117', null]
+      train_ratio: 0.9
       generate_cfgs:
-        - tags: ['.bmp']
-          save_dir: DATASETS/datalist_temp/locate
+        - tags: ['2工位', 'housing2']
+          save_dir: DATASETS/datalist_new/2工位
           datalist_names:
-            train: train_20230630-0710.txt
-            test: test_20230630-0710.txt
+            train: train_locate_20231108-1117.txt
+            test: test_locate_20231108-1117.txt
+            unknown: null
+        - tags: ['3工位', 'housing3']
+          save_dir: DATASETS/datalist_new/3工位
+          datalist_names:
+            train: train_locate_20231108-1117.txt
+            test: test_locate_20231108-1117.txt
             unknown: null
 
     - task_name: seg
       base_dir: DATASETS/cropped3
       img_json_dirs:
-        - ['20230923-0927', null]
-        - ['20231010', null]
+        - ['20231212', null]
       train_ratio: 0.9
       generate_cfgs:
         - tags: ['2工位']
           save_dir: DATASETS/datalist/2工位
           datalist_names:
-            train: train_20230923-1010.txt
-            test: test_20230923-1010.txt
+            train: train_20231212.txt
+            test: test_20231212.txt
             unknown: null
         - tags: ['3工位']
           save_dir: DATASETS/datalist/3工位
           datalist_names:
-            train: train_20230923-1010.txt
-            test: test_20230923-1010.txt
+            train: train_20231212.txt
+            test: test_20231212.txt
             unknown: null
 
 image_cropper_cfg:
   base_dir: DATASETS/origin
   img_json_dirs:
-    - ['20230923-0927', null]
-    - ['20231010', null]
+    - ['20231212', null]
   save_dir: DATASETS/cropped3
+  save_format: null  # null / '.bmp' / '.jpg' / '.png'
   grayscale: False
-  save_as_jpg: False
   is_draw: False
   only_json: False
   enable_time_printing: False

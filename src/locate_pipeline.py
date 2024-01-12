@@ -3,6 +3,7 @@ import numpy as np
 
 from smore_xrack.utils.timer import profile
 from smore_xrack.module.module_builder import build_module
+from smore_xrack.pipeline.pipeline_builder import build_pipeline
 from smore_xrack.pipeline.pipeline_base import PipelineBase
 from smore_xrack.pipeline.pipeline_builder import PIPELINE
 from smore_xrack.utils.constant import SegOutputConstants
@@ -36,3 +37,10 @@ class LocatePipeline(PipelineBase):
             'rects': loc_module_output[SegOutputConstants.CONTOURS_RECT][0],
         }
         return output_dict
+
+
+def build_locate_pipeline(cfg):
+    assert 'type' in cfg, f"Not found 'type' in cfg: {cfg}"
+    assert cfg['type'] == 'LocatePipeline', \
+        f"Wrong 'type' in cfg, expected 'LocatePipeline', got '{cfg['type']}'"
+    return build_pipeline(cfg)

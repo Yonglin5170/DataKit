@@ -3,7 +3,7 @@ import random
 import argparse
 
 import sys
-sys.path.append('/dataset/yonglinwu/SMore/DataKit')
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from src import utils
 from src.data_processor import DataProcessor

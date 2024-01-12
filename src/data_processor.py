@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 import sys
-sys.path.append('/dataset/yonglinwu/SMore/DataKit')
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from src import utils
 

@@ -5,13 +5,9 @@ import argparse
 import numpy as np
 
 import sys
-sys.path.append('/dataset/yonglinwu/SMore/DataKit')
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from src import locate_pipeline, utils
-
-from smore_xrack.utils.logger import get_root_logger
-from smore_xrack.utils.timer import print_profile
-from smore_xrack.pipeline.pipeline_builder import build_pipeline
+from src import utils
 
 
 class ImageCropper(object):
@@ -32,7 +28,7 @@ class ImageCropper(object):
         self.locate_cropped_cfg = image_cropper_cfg['locate_cropped_cfg']
         self._locate_pipeline = None
         self._cropped_params_by_product = None
-        self.logger = None
+        self._logger = None
 
     def draw(self, img_data, roi_info):
         """
@@ -60,10 +56,22 @@ class ImageCropper(object):
         return img_data
 
     def locate_pipeline_forward(self, img_data):
+        from src.locate_pipeline import build_locate_pipeline
+
         if self._locate_pipeline is None:
-            self._locate_pipeline = build_pipeline(self.locate_pipeline_cfg)
+            self._locate_pipeline = build_locate_pipeline(self.locate_pipeline_cfg)
         outputs = self._locate_pipeline.forward(img_data=img_data)
         return outputs
+
+    def log_profile_info(self):
+        from smore_xrack.utils.logger import get_root_logger
+        from smore_xrack.utils.timer import print_profile
+
+        if self._logger is None:
+            log_path = os.path.join(self.save_dir, 'log.txt')
+            self._logger = get_root_logger(log_file=log_path)
+        profile_info = print_profile()
+        self._logger.info(profile_info)
 
     @property
     def cropped_params_by_product(self):
@@ -96,8 +104,7 @@ class ImageCropper(object):
     def get_roi_info_by_locate_pipeline(self, img_data, product_type):
         outputs = self.locate_pipeline_forward(img_data)
         if self.enable_time_printing:
-            profile_info = print_profile()
-            self.logger.info(profile_info)
+            self.log_profile_info()
         contours = outputs['contours']
         rects = outputs['rects']
         cropped_params = self.cropped_params_by_product[product_type]
@@ -266,8 +273,6 @@ class ImageCropper(object):
         utils.json_dump(new_json_data, json_save_path)
 
     def crop_images_of_single_dir(self, img_dir, json_dir):
-        log_path = os.path.join(self.save_dir, 'log.txt')
-        self.logger = get_root_logger(log_path)
         # cnt = 0
         for root, dirnames, filenames in os.walk(os.path.join(self.base_dir, img_dir)):
             for filename in filenames:

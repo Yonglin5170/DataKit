@@ -40,7 +40,7 @@ class DataGenerator(object):
                     contain_any_tag = any(tag in filename for tag in tags)
                     if not contain_any_tag:
                         continue
-                    if '.jpg' in filename or '.bmp' in filename:  # image
+                    if any([ext in filename for ext in ['.jpg', '.bmp', '.png']]):  # image
                         img_path = os.path.join(root, filename)
                         json_path = os.path.join(root, filename.replace(filename[-4:], '.json'))
                         if json_dir is not None:  # 指定了json的目录

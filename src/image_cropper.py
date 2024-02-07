@@ -276,7 +276,7 @@ class ImageCropper(object):
         # cnt = 0
         for root, dirnames, filenames in os.walk(os.path.join(self.base_dir, img_dir)):
             for filename in filenames:
-                if '.jpg' not in filename and '.bmp' not in filename:
+                if all([ext not in filename for ext in ['.jpg', '.bmp', '.png']]):
                     continue
                 # if cnt >= 1:
                 #     break

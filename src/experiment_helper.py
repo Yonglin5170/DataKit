@@ -69,12 +69,16 @@ class ExperimentHelper(object):
 
     def modify_sdk_config(self, config_path, keys_value_pairs=[]):
         config_data = utils.json_load(config_path)
+        with open(config_path, encoding='utf-8') as f:
+            content = f.read()
+
         for keys, value in keys_value_pairs:
             temp_config_data = config_data
             for key in keys[:-1]:
                 temp_config_data = temp_config_data[key]
-            temp_config_data[keys[-1]] = value
-        utils.json_dump(config_data, config_path, indent=2)
+            content = content.replace(temp_config_data[keys[-1]], value)
+        with open(config_path, 'w', encoding='utf-8') as f:
+            f.write(content)
 
     def record_result(self, baseline_exp_dir_name, new_exp_dir):
         metric_dirs = os.listdir(os.path.join(new_exp_dir, 'result/val'))

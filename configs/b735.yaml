@@ -1,0 +1,114 @@
+data_generator_cfg:
+  processing_queue: [seg1]
+  set_all_labels_ok: False
+  seed: 42
+  delimiter: '||'
+  tasks:
+    - task_name: seg1
+      base_dir: DATASETS/cropped/D面
+      img_json_dirs:
+        - ['20240511-0512_FOXLINK_D面', null]
+        - ['20240513-0515_FOXLINK_D面', null]
+        - ['20240521_FOXLINK_D面', null]
+        - ['20240523-0526_FOXLINK_D面', null]
+        - ['20240528-0529_FOXLINK_D面', null]
+        - ['20240530_FOXLINK_D面', null]
+        - ['20240601-0603_FOXLINK_D面', null]
+        - ['20240604_FOXLINK_D面', null]
+        - ['20240605_FOXLINK_D面', null]
+        - ['20240606-0608_FOXLINK_D面', null]
+        - ['20240608-0611_FOXLINK_D面', null]
+        - ['20240611_ICT_D面', null]
+        - ['20240612-0613_FOXLINK+ICT_D面', null]
+        - ['20240613_FOXLINK_D面', null]
+      train_ratio: 0.9
+      generate_cfgs:
+        - tags: ['.png']
+          save_dir: DATASETS/datalist/D面
+          datalist_names:
+            train: train_20240511-0613v2.txt
+            test: test_20240511-0613v2.txt
+            unknown: null
+
+    - task_name: seg2
+      base_dir: DATASETS/cropped/端子
+      img_json_dirs:
+        - ['20240411-0414_FOXLINK_端子', null]
+      train_ratio: 0.9
+      generate_cfgs:
+        - tags: ['.png']
+          save_dir: DATASETS/datalist/端子
+          datalist_names:
+            train: train_20240411-0414.txt
+            test: test_20240411-0414.txt
+            unknown: null
+
+image_cropper_cfg:
+  base_dir: DATASETS/origin/D面
+  img_json_dirs:
+    - ['20240417-0419_ICT_D面', null]
+    - ['20240419-0420_FOXLINK_D面', null]
+    - ['20240426-0507_ICT_D面', null]
+  save_dir: DATASETS/cropped/D面
+  save_format: null  # null / '.bmp' / '.jpg' / '.png'
+  grayscale: False
+  is_draw: False
+  only_json: False
+  enable_time_printing: False
+  # roi_mappings:  # 适用于0414之前的demo机数据
+  #   - conditions: ['_FOXLINK_', ['_D3_', '_D4_', '_D5_', '_D6_', '_D7_', '_D8_', '_D9_', '_D10_', '_D11_', '_D12_', '_D17_', '_D18_', '_D19_', '_D20_', '_D21_', '_D22_', '_D23_', '_D24_', '_D25_', '_D26_', '_D27_', '_D28_', '_D29_']]
+  #     product_type: 'd'
+  #     roi_list:
+  #       - [587, 750, 4043, 2606]
+  #   - conditions: ['_FOXLINK_', ['_D1_', '_D2_', '_D13_', '_D14_', '_D15_', '_D16_', '_D30_', '_D31_', '_D32_', '_D33_', '_D34_', '_D60_', '_D61_']]
+  #     product_type: 'd'
+  #     roi_list:
+  #       - [447, 747, 3903, 2603]
+  #   - conditions: ['_FOXLINK_', ['_D35_', '_D38_', '_D39_', '_D40_', '_D41_', '_D42_', '_D43_', '_D44_', '_D45_', '_D46_', '_D47_', '_D52_', '_D53_', '_D54_', '_D55_', '_D56_', '_D57_', '_D58_', '_D59_']]
+  #     product_type: 'd'
+  #     roi_list:
+  #       - [350, 306, 3806, 2162]
+  #   - conditions: ['_FOXLINK_', ['_D36_', '_D37_']]
+  #     product_type: 'd'
+  #     roi_list:
+  #       - [473, 923, 3929, 2779]
+  #   - conditions: ['_FOXLINK_', ['_D48_', '_D49_', '_D50_', '_D51_']]
+  #     product_type: 'd'
+  #     roi_list:
+  #       - [257, 1087, 3713, 2943]
+  #   - conditions: ['_FOXLINK_', '_#2A1_']
+  #     product_type: '2a'
+  #     roi_list:
+  #       - [1600, 1600, 2624, 2624]
+  #   - conditions: ['_FOXLINK_', '_#2A2_']
+  #     product_type: '2a'
+  #     roi_list:
+  #       - [1410, 996, 2434, 2020]
+  #   - conditions: ['_FOXLINK_', '_#2A3_']
+  #     product_type: '2a'
+  #     roi_list:
+  #       - [1430, 383, 2454, 1407]
+  #   - conditions: ['_FOXLINK_', '_#2A4_']
+  #     product_type: '2a'
+  #     roi_list:
+  #       - [1523, 906, 2547, 1930]
+  roi_mappings:  # 适用于0419之后的demo机数据
+    - conditions: [['_FOXLINK_', '_ICT_'], ['_D1_', '_D1-1_']]
+      product_type: 'd'
+      roi_list:
+        - [334, 750, 3790, 2606]
+    - conditions: [['_FOXLINK_', '_ICT_'], ['_D2_', '_D2-1_', '_D3_', '_D3-1_', '_D4_', '_D4-1_', '_D4-2_', '_D5-1_', '_D6_', '_D6-1_', '_D7_', '_D7-1_', '_D8_', '_D8-1_', '_D9_', '_D9-1_', '_D10_', '_D10-1_', '_D11_', '_D11-1_', '_D12_', '_D13_', '_D14_', '_D15_', '_D15-1_', '_D16_', '_D17_', '_D17-1_']]
+      product_type: 'd'
+      roi_list:
+        - [294, 650, 3750, 2506]
+    - conditions: ['_FOXLINK_', '_D5_']
+      product_type: 'd'
+      roi_list:
+        - [394, 970, 3850, 2826]
+    - conditions: ['_ICT_', '_D5_']
+      product_type: 'd'
+      roi_list:
+        - [294, 650, 3750, 2506]
+
+  locate_pipeline_cfg: null
+  locate_cropped_cfg: null

@@ -1,0 +1,171 @@
+data_generator_cfg:
+  processing_queue: [seg1, seg2]
+  set_all_labels_ok: False
+  seed: 42
+  delimiter: '||'
+  tasks:
+    - task_name: seg1
+      base_dir: DATASETS/cropped/镜头内圈
+      img_json_dirs:
+        - ['20240207-ls', null]
+        - ['20240214-ls', null]
+        - ['20240215-0216-ls', null]
+        - ['20240228-lens', null]
+        - ['20240229_lens-环光20pcs', null]
+        - ['20240302-lens-加入环光_镜头内圈', null]
+        - ['20240306_镜头内圈', null]
+        - ['20240309_镜头内圈', null]
+        - ['20240311-52pcs过杀_镜头内圈', null]
+        - ['20240312-92pcsOK料前30颗_镜头内圈', null]
+        - ['20240315-42PCS镜头内圈', null]
+        - ['20240321_ovb_镜头内圈', null]
+        - ['20240322_光学调整_镜头内圈', null]
+        - ['20240323_360片过杀_镜头内圈', null]
+        - ['20240325-0326_40pcsNG_镜头内圈', null]
+        - ['20240329-39PCS-NG缺陷_镜头内圈', null]
+        - ['20240330-0402_镜头内圈', null]
+        - ['20240405-0406_镜头内圈', null]
+        - ['20240410_200pcs过杀+4.5k_镜头内圈', null]
+        - ['20240412_4.5k过杀补充_镜头内圈', null]
+        - ['20240412-100pcs漏失_镜头内圈', null]
+        - ['20240415_58pcs+100pcs+5pcs_镜头内圈', null]
+        - ['20240416_镜头内圈', null]
+        - ['20240417_镜头内圈', null]
+        - ['20240419_镜头内圈', null]
+        - ['20240420-158PCS二次跑漏失_镜头内圈', null]
+        - ['20240424_镜头内圈', null]
+        - ['20240426-6.7k_镜头内圈', null]
+        - ['20240509-45pcs+158pcs_镜头内圈', null]
+        - ['20240511-新型号_镜头内圈', null]
+        - ['20240511-0512-6.7k+3.5k过杀_镜头内圈', null]
+        - ['20240516-lens压印_镜头内圈', null]
+        - ['20240517-5.5k在线过杀_镜头内圈', null]
+        - ['20240521-760pcs+40pcs+6.7k+60pcs_镜头内圈', null]
+        - ['20240523-760pcs_镜头内圈', null]
+        - ['20240524-0526_镜头内圈', null]
+        - ['20240528-68pcsNG_镜头内圈', null]
+        - ['20240528-3K在线跑_镜头内圈', null]
+        - ['20240530_镜头内圈', null]
+        - ['20240531-0601_镜头内圈', null]
+        - ['20240602-0603_镜头内圈', null]
+        - ['20240603-6k_镜头内圈', null]
+        - ['20240605-8.2k_镜头内圈', null]
+        - ['20240605-0606_镜头内圈', null]
+        - ['20240607-0609_镜头内圈', null]
+        - ['20240612-0613-line1_镜头内圈', null]
+        - ['20240614_镜头内圈', null]
+        # - ['20240323空料_镜头内圈', null]
+      train_ratio: 0.9
+      generate_cfgs:
+        - tags: ['_正面镜头内圈_同轴', '_正面镜头内圈_四分区环光全亮', '1.png', '2.png', '3.png', '_Lens']
+          save_dir: DATASETS/datalist/正面镜头内圈
+          datalist_names:
+            train: train_20240207-0614.txt
+            test: test_20240207-0614.txt
+            unknown: null
+
+    - task_name: seg2
+      base_dir: DATASETS/cropped/镜头外圈
+      img_json_dirs:
+        - ['20240227外圈', null]
+        - ['20240302-lens-加入环光_镜头外圈', null]
+        - ['20240304-外圈漏失', null]
+        - ['20240305-0306_镜头外圈', null]
+        - ['20240306_镜头外圈', null]
+        - ['20240307-0309_镜头外圈', null]
+        - ['20240311-5pcs外圈', null]
+        - ['20240318_MP机台调整图', null]
+        - ['20240321_ovb_镜头外圈', null]
+        - ['20240325-0326_40pcsNG_镜头外圈', null]
+        - ['20240329-39PCS-NG缺陷_镜头外圈', null]
+        - ['20240330-0402_镜头外圈', null]
+        - ['20240405-0406_镜头外圈', null]
+        - ['20240411-9pcs深浅划伤_镜头外圈', null]
+        - ['20240412-100pcs漏失_镜头外圈', null]
+        - ['20240415_58pcs_镜头外圈', null]
+        - ['20240416_镜头外圈', null]
+        - ['20240417_镜头外圈', null]
+        - ['20240419_镜头外圈', null]
+        - ['20240424_镜头外圈', null]
+        - ['20240426-6.7k_镜头外圈', null]
+        - ['20240512-3.5k过杀_镜头外圈', null]
+        - ['20240514-0515-3.5k过杀_镜头外圈', null]
+        - ['20240517-5.5k在线过杀_镜头外圈', null]
+        - ['20240521-60pcs_镜头外圈', null]
+        - ['20240525_镜头外圈', null]
+        - ['20240530_镜头外圈', null]
+        - ['20240531-0602_镜头外圈', null]
+        - ['20240602_镜头外圈', null]
+        - ['20240605-8.2k_镜头外圈', null]
+        - ['20240605-9k_镜头外圈', null]
+        - ['20240607-0609_镜头外圈', null]
+        - ['20240613-line1_镜头外圈', null]
+        - ['20240614_镜头外圈', null]
+        # - ['20240323空料_镜头外圈', null]
+      train_ratio: 0.9
+      generate_cfgs:
+        - tags: ['_正面镜头外圈1_', '_Holder']
+          save_dir: DATASETS/datalist/正面镜头外圈
+          datalist_names:
+            train: train_20240227-0614.txt
+            test: test_20240227-0614.txt
+            unknown: null
+
+    - task_name: gen
+      base_dir: DATASETS/cropped/gen_data/particle
+      img_json_dirs:
+        - ['train_particle_0328', null]
+      train_ratio: 1.0
+      generate_cfgs:
+        - tags: ['正面镜头内圈']
+          save_dir: DATASETS/datalist/gen
+          datalist_names:
+            train: train_particle_0328.txt
+            test: null
+            unknown: null
+
+    - task_name: gen2
+      base_dir: DATASETS/cropped/gen_data/chair
+      img_json_dirs:
+        - ['test_chair_0329', null]
+      train_ratio: 1.0
+      generate_cfgs:
+        - tags: ['.jpg']
+          save_dir: DATASETS/datalist/gen
+          datalist_names:
+            train: test_chair_0329.txt
+            test: null
+            unknown: null
+
+image_cropper_cfg:
+  base_dir: DATASETS/origin
+  img_json_dirs:
+    # - ['20240207-ls', '20240207-0304_镜头标注修改_json/20240207-ls']
+    # - ['20240214-ls', '20240207-0304_镜头标注修改_json/20240214-ls']
+    # - ['20240215-0216-ls', '20240207-0304_镜头标注修改_json/20240215-0216-ls']
+    # - ['20240227外圈', '20240207-0304_镜头标注修改_json/20240227外圈']
+    # - ['20240302-lens-加入环光', '20240207-0304_镜头标注修改_json/20240302-lens-加入环光']
+    - ['20240323空料', null]
+  save_dir: DATASETS/cropped
+  save_format: null  # null / '.bmp' / '.jpg' / '.png'
+  grayscale: False
+  is_draw: False
+  only_json: False
+  enable_time_printing: False
+  roi_mappings:
+    - conditions: ['正面镜头内圈']
+      product_type: 'lens_front'
+      # roi_list: null
+      roi_list:
+        # - [1350, 1350, 2800, 2800]
+        - [1350, 1250, 2800, 2700]
+    - conditions: ['正面镜头外圈']
+      product_type: 'lens_outside'
+      # roi_list: null
+      roi_list:
+        # - [1300, 750, 2750, 2200]
+        # - [1150, 700, 2850, 2200]
+        - [1100, 650, 2800, 2150]
+
+  locate_pipeline_cfg: null
+  locate_cropped_cfg: null

@@ -162,7 +162,16 @@ class ImageCropper(object):
         new_mapping_queue = []
         # 对每个tag做循环
         while i < tag_num:
-            new_mapping_queue = [mapping for mapping in mapping_queue if mapping['conditions'][i] in img_path]
+            # new_mapping_queue = [mapping for mapping in mapping_queue if mapping['conditions'][i] in img_path]
+            new_mapping_queue = []
+            for mapping in mapping_queue:
+                condition = mapping['conditions'][i]
+                if isinstance(condition, str):
+                    if condition in img_path:
+                        new_mapping_queue.append(mapping)
+                elif isinstance(condition, list):
+                    if any([cond in img_path for cond in condition]) :
+                        new_mapping_queue.append(mapping)
             # 所有mapping都不匹配，则加入tag == '_else_'的mapping
             if len(new_mapping_queue) == 0:
                 new_mapping_queue = [mapping for mapping in mapping_queue if mapping['conditions'][i] == '_else_']

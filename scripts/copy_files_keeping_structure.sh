@@ -1,0 +1,1 @@
+rsync -av --include="*/" --include="*.json" --exclude="*" temp/Dataset/test_json_dir/* temp/Dataset/test_img_dir
